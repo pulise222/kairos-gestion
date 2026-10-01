@@ -1,0 +1,51 @@
+# Publica la DEMO (solo pantalla, datos de ejemplo en memoria, sin servidor) en GitHub Pages.
+# Se ejecuta sola cada vez que se sube un cambio a la rama principal.
+# Para activarlo una vez: en GitHub → Settings → Pages → «Build and deployment» → Source: GitHub Actions.
+name: Publicar demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Instalar y probar
+        working-directory: apps/web
+        run: |
+          npm ci
+          npm test
+      - name: Compilar la demo
+        working-directory: apps/web
+        # --base: la demo vive en https://USUARIO.github.io/NOMBRE-DEL-REPO/
+        run: npm run build:demo -- --base=/${{ github.event.repository.name }}/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist-demo
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4
