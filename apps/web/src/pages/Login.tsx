@@ -2,7 +2,7 @@ import { useMarcaCliente } from '../design/personalizacion'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Moon, Sun, WifiOff } from 'lucide-react'
+import { CircleHelp, Eye, EyeOff, Moon, Sun, WifiOff } from 'lucide-react'
 import { ErrorApi } from '../api/cliente'
 import { Fondo } from '../design/Fondo'
 import { Logo } from '../components/ui/Logo'
@@ -26,6 +26,10 @@ export function Login() {
   const [errores, setErrores] = useState<{ usuario?: string; clave?: string }>({})
   const [errorGeneral, setErrorGeneral] = useState<string>()
   const [enviando, setEnviando] = useState(false)
+  // La ayuda se abre al pasar el mouse o al enfocarla (hover) y se puede dejar FIJA con un clic o toque (celular).
+  const [hover, setHover] = useState(false)
+  const [fijada, setFijada] = useState(false)
+  const ayuda = hover || fijada
 
   if (estado === 'cargando') return <Cargando />
   // Ya hay sesión: cada rol cae en su pantalla de trabajo (el dueño en el Panel; el vendedor, en la caja).
@@ -63,6 +67,45 @@ export function Login() {
       <button onClick={alternar} className="glass absolute right-4 top-4 grid size-11 place-items-center rounded-full text-ink" aria-label={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
         {tema === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
       </button>
+
+      {/* Solo en la demo pública: una ayuda que se abre al pasar el mouse, al enfocarla con el teclado o al tocarla (celular). */}
+      {MODO_DEMO && (
+        <div
+          className="absolute left-4 top-4 z-10"
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHover(false) }}
+          onKeyDown={(e) => { if (e.key === 'Escape') { setHover(false); setFijada(false) } }}
+        >
+          <button
+            type="button"
+            onClick={() => setFijada((v) => !v)}
+            onFocus={() => setHover(true)}
+            aria-expanded={ayuda}
+            aria-controls="ayuda-demo"
+            className="glass flex h-11 items-center gap-2 rounded-full pl-3 pr-4 text-sm font-medium text-ink"
+          >
+            <CircleHelp className="size-5 text-accent motion-safe:animate-pulse" /> ¿Cómo entro?
+          </button>
+          {ayuda && (
+            <div id="ayuda-demo" role="region" aria-label="Cómo entrar a la demo" className="glass mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 text-sm">
+              <p className="font-semibold">Esto es una demostración</p>
+              <p className="mt-1 text-muted">No necesitas una cuenta: escribe <b className="text-ink">cualquier usuario y contraseña</b> (por ejemplo «demo» y «demo») y pulsa <b className="text-ink">Entrar</b>. Los datos son de ejemplo y se reinician al recargar la página.</p>
+              <Button
+                type="button"
+                className="mt-3 w-full"
+                disabled={enviando}
+                onClick={async () => {
+                  setEnviando(true)
+                  try { const u = await entrar('demo', 'demo'); navegar(u.rol === 'DUENO' ? '/panel' : '/venta', { replace: true }) } finally { setEnviando(false) }
+                }}
+              >
+                Entrar ahora con datos de ejemplo
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       <form onSubmit={enviar} noValidate className="glass w-full max-w-sm rounded-3xl p-8">
         <div className="mb-8 flex flex-col items-center text-center">
