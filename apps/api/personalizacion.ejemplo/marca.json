@@ -1,0 +1,5 @@
+{
+  "lema": "Tu tienda de barrio, a tu nivel",
+  "claro": { "accent": "#2f6f4f", "bg": "#e3e8dc", "panel": "#f8faf4", "tile": "#d6dccd", "line": "#bcc7ae" },
+  "oscuro": { "accent": "#7fd1a0" }
+}
