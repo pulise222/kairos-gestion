@@ -54,6 +54,8 @@ export function rutasCompras(prisma: Prisma, secreto: string) {
       const productos = await tx.producto.findMany({ where: { id: { in: items.map((i) => i.productoId) } } })
       if (productos.length !== items.length) throw reglaDeNegocio('PRODUCTO_NO_DISPONIBLE', 'Hay productos que no existen')
       const porId = new Map(productos.map((p) => [p.id, p]))
+      const sinControl = productos.filter((p) => !p.controlaStock)
+      if (sinControl.length) throw reglaDeNegocio('PRODUCTO_SIN_CONTROL', `«${sinControl[0]!.nombre}» no lleva control de inventario: actívalo en su ficha para registrar entradas.`)
 
       const c = await tx.compra.create({
         data: { proveedorId: d.proveedorId, usuarioId: yo.id, total, notas: d.notas, items: { create: items } },
@@ -119,7 +121,7 @@ export function rutasInventario(prisma: Prisma, secreto: string) {
       PrismaRuntime.sql`SELECT count(*)::int AS total,
         count(*) FILTER (WHERE stock > 0 AND stock <= stock_minimo)::int AS bajo,
         count(*) FILTER (WHERE stock <= 0)::int AS agotado
-        FROM producto WHERE activo`,
+        FROM producto WHERE activo AND controla_stock AND NOT es_sistema`,
     )
     res.json(f)
   })
@@ -130,8 +132,9 @@ export function rutasInventario(prisma: Prisma, secreto: string) {
     const d = validar(esquemaAjuste, req.body)
     const resultado = await prisma.$transaction(async (tx) => {
       // Bloqueo de la fila para que un conteo no pise una venta que ocurre justo ahora.
-      const filas = await tx.$queryRaw<{ stock: number }[]>(PrismaRuntime.sql`SELECT stock FROM producto WHERE id = ${d.productoId} FOR UPDATE`)
+      const filas = await tx.$queryRaw<{ stock: number; controla_stock: boolean }[]>(PrismaRuntime.sql`SELECT stock, controla_stock FROM producto WHERE id = ${d.productoId} FOR UPDATE`)
       if (!filas[0]) throw noEncontrado('El producto')
+      if (!filas[0].controla_stock) throw reglaDeNegocio('PRODUCTO_SIN_CONTROL', 'Este producto no lleva control de inventario: actívalo en su ficha para ajustar su stock.')
       const delta = d.nuevoStock !== undefined ? d.nuevoStock - filas[0].stock : d.diferencia!
       if (delta === 0) throw reglaDeNegocio('AJUSTE_SIN_CAMBIO', 'El ajuste no cambia el stock')
       const quedo = filas[0].stock + delta
@@ -151,10 +154,12 @@ export function rutasInventario(prisma: Prisma, secreto: string) {
     const ids = d.items.map((i) => i.productoId).sort((a, b) => a - b) // siempre en el mismo orden: dos conteos a la vez no se bloquean entre sí
     const contado = new Map(d.items.map((i) => [i.productoId, i.contado]))
     const resultado = await prisma.$transaction(async (tx) => {
-      const filas = await tx.$queryRaw<{ id: number; nombre: string; stock: number }[]>(
-        PrismaRuntime.sql`SELECT id, nombre, stock FROM producto WHERE id IN (${PrismaRuntime.join(ids)}) ORDER BY id FOR UPDATE`,
+      const filas = await tx.$queryRaw<{ id: number; nombre: string; stock: number; controla_stock: boolean }[]>(
+        PrismaRuntime.sql`SELECT id, nombre, stock, controla_stock FROM producto WHERE id IN (${PrismaRuntime.join(ids)}) ORDER BY id FOR UPDATE`,
       )
       if (filas.length !== ids.length) throw noEncontrado('Alguno de los productos')
+      const sinControl = filas.find((f) => !f.controla_stock)
+      if (sinControl) throw reglaDeNegocio('PRODUCTO_SIN_CONTROL', `«${sinControl.nombre}» no lleva control de inventario: actívalo en su ficha para contarlo.`)
       const cambios: { productoId: number; nombre: string; antes: number; contado: number; diferencia: number }[] = []
       for (const f of filas) {
         const c = contado.get(f.id)!

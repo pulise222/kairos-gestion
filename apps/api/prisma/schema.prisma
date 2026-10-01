@@ -75,6 +75,8 @@ model Usuario {
   cambiosDePrecio       HistorialPrecio[]
   devoluciones          Devolucion[]
   devolucionesProveedor DevolucionProveedor[]
+  cierresDeCaja         CierreCaja[]
+  comentarios           Comentario[]
 
   @@map("usuario")
 }
@@ -119,6 +121,12 @@ model Producto {
   precio        Int // pesos enteros
   stock         Int      @default(0)
   stockMinimo   Int      @default(0) @map("stock_minimo")
+  /// false = producto SIN control de inventario: se vende sin descontar stock y no aparece en alertas ni conteos
+  controlaStock Boolean  @default(true) @map("controla_stock")
+  /// true = el monto lo escribe quien vende (solo los productos de «venta por monto» de cada sección)
+  precioLibre   Boolean  @default(false) @map("precio_libre")
+  /// true = producto interno del sistema (venta por monto): no se ve en el catálogo
+  esSistema     Boolean  @default(false) @map("es_sistema")
   activo        Boolean  @default(true)
   creadoEn      DateTime @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
@@ -351,4 +359,38 @@ model Configuracion {
   valor Json
 
   @@map("configuracion")
+}
+
+/// Cierre del día: el dinero en efectivo que hay en la caja contra lo que debería haber según las ventas.
+model CierreCaja {
+  id               Int      @id @default(autoincrement())
+  fecha            DateTime @unique @db.Date // el día del negocio que se cierra (uno por día; se puede volver a guardar)
+  fondoInicial     Int      @default(0) @map("fondo_inicial") // dinero con el que se abrió la caja (para dar vueltas)
+  efectivoEsperado Int      @map("efectivo_esperado") // fondo + ventas en efectivo − devoluciones en efectivo (lo calcula el servidor)
+  efectivoContado  Int      @map("efectivo_contado") // lo que se contó de verdad
+  diferencia       Int // contado − esperado (0 = cuadra)
+  totalVentas      Int      @map("total_ventas")
+  tickets          Int
+  nota             String?
+  usuarioId        Int      @map("usuario_id")
+  creadoEn         DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn    DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("cierre_caja")
+}
+
+/// Sugerencias y comentarios que escribe quien usa el sistema (semana de prueba y después).
+model Comentario {
+  id        Int      @id @default(autoincrement())
+  texto     String
+  pantalla  String?
+  usuarioId Int      @map("usuario_id")
+  creadoEn  DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@index([creadoEn])
+  @@map("comentario")
 }

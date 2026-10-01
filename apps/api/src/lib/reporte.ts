@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readdir, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import ExcelJS from 'exceljs'
 import nodemailer from 'nodemailer'
@@ -90,12 +90,12 @@ export async function generarExcel(prisma: Prisma, desde: string, hasta: string)
       FROM devolucion_item di JOIN devolucion dv ON dv.id = di.devolucion_id WHERE dv.creada_en >= ${inicio} AND dv.creada_en < ${fin}
     )
     SELECT m.nombre, c.nombre AS categoria, SUM(m.u) AS unidades, SUM(m.ing) AS ingresos
-    FROM movs m JOIN producto p ON p.id = m.producto_id JOIN categoria c ON c.id = p.categoria_id
+    FROM movs m JOIN producto p ON p.id = m.producto_id AND NOT p.es_sistema JOIN categoria c ON c.id = p.categoria_id
     GROUP BY m.producto_id, m.nombre, c.nombre HAVING SUM(m.u) > 0 ORDER BY unidades DESC, ingresos DESC`)
 
-  const inventario = await prisma.$queryRaw<{ codigo: string; nombre: string; categoria: string; proveedor: string | null; stock: number; minimo: number; costo: number; precio: number; activo: boolean }[]>(PrismaRuntime.sql`
-    SELECT p.codigo, p.nombre, c.nombre AS categoria, pr.nombre AS proveedor, p.stock, p.stock_minimo AS minimo, p.costo, p.precio, p.activo
-    FROM producto p JOIN categoria c ON c.id = p.categoria_id LEFT JOIN proveedor pr ON pr.id = p.proveedor_id ORDER BY p.nombre`)
+  const inventario = await prisma.$queryRaw<{ codigo: string; nombre: string; categoria: string; proveedor: string | null; stock: number; minimo: number; costo: number; precio: number; activo: boolean; controla_stock: boolean }[]>(PrismaRuntime.sql`
+    SELECT p.codigo, p.nombre, c.nombre AS categoria, pr.nombre AS proveedor, p.stock, p.stock_minimo AS minimo, p.costo, p.precio, p.activo, p.controla_stock
+    FROM producto p JOIN categoria c ON c.id = p.categoria_id LEFT JOIN proveedor pr ON pr.id = p.proveedor_id WHERE NOT p.es_sistema ORDER BY p.nombre`)
 
   const [dev] = await prisma.$queryRaw<{ total: bigint; ganancia: bigint }[]>(PrismaRuntime.sql`
     SELECT COALESCE(SUM(dv.total), 0) AS total,
@@ -111,8 +111,8 @@ export async function generarExcel(prisma: Prisma, desde: string, hasta: string)
     ganancia: vigentes.reduce((s, v) => s + n(v.ganancia), 0) - n(dev?.ganancia),
     tickets: vigentes.length,
     anuladas: ventas.length - vigentes.length,
-    valorInventario: inventario.filter((p) => p.activo).reduce((s, p) => s + p.stock * p.costo, 0),
-    stockBajo: inventario.filter((p) => p.activo && p.stock <= p.minimo).length,
+    valorInventario: inventario.filter((p) => p.activo && p.controla_stock).reduce((s, p) => s + p.stock * p.costo, 0),
+    stockBajo: inventario.filter((p) => p.activo && p.controla_stock && p.stock <= p.minimo).length,
   }
 
   const libro = new ExcelJS.Workbook()
@@ -153,9 +153,41 @@ export async function generarExcel(prisma: Prisma, desde: string, hasta: string)
   encabezado(h4, [
     { header: 'Código', key: 'codigo', width: 16 }, { header: 'Producto', key: 'nombre', width: 32 }, { header: 'Categoría', key: 'categoria', width: 18 }, { header: 'Proveedor', key: 'proveedor', width: 22 },
     { header: 'Stock', key: 'stock', width: 9 }, { header: 'Mínimo', key: 'minimo', width: 9 }, { header: 'Costo', key: 'costo', width: 12, fmt: PESOS }, { header: 'Precio', key: 'precio', width: 12, fmt: PESOS },
-    { header: 'Valor a costo', key: 'valor', width: 15, fmt: PESOS }, { header: 'Estado', key: 'estado', width: 12 },
+    { header: 'Valor a costo', key: 'valor', width: 15, fmt: PESOS }, { header: 'Estado', key: 'estado', width: 24 },
   ])
-  for (const p of inventario) h4.addRow({ ...p, proveedor: p.proveedor ?? '', valor: p.stock * p.costo, estado: !p.activo ? 'Inactivo' : p.stock <= 0 ? 'Agotado' : p.stock <= p.minimo ? 'Stock bajo' : 'En stock' })
+  // Es también la lista de PRECIOS: los productos sin control de inventario salen sin stock.
+  for (const p of inventario) {
+    h4.addRow({
+      ...p, proveedor: p.proveedor ?? '', stock: p.controla_stock ? p.stock : '', minimo: p.controla_stock ? p.minimo : '', valor: p.controla_stock ? p.stock * p.costo : '',
+      estado: !p.activo ? 'Inactivo' : !p.controla_stock ? 'Sin control de inventario' : p.stock <= 0 ? 'Agotado' : p.stock <= p.minimo ? 'Stock bajo' : 'En stock',
+    })
+  }
+
+  // Ventas netas por sección (incluye las ventas por monto) y los cierres de caja del período.
+  const secciones = await prisma.$queryRaw<{ seccion: string; ventas: bigint }[]>(PrismaRuntime.sql`
+    WITH movs AS (
+      SELECT p.categoria_id, i.cantidad * i.precio_unitario AS monto
+      FROM venta_item i JOIN venta v ON v.id = i.venta_id JOIN producto p ON p.id = i.producto_id
+      WHERE v.estado = 'COMPLETADA' AND v.creada_en >= ${inicio} AND v.creada_en < ${fin}
+      UNION ALL
+      SELECT p.categoria_id, -di.cantidad * di.precio_unitario
+      FROM devolucion_item di JOIN devolucion dv ON dv.id = di.devolucion_id JOIN producto p ON p.id = di.producto_id
+      WHERE dv.creada_en >= ${inicio} AND dv.creada_en < ${fin}
+    )
+    SELECT c.nombre AS seccion, SUM(m.monto) AS ventas FROM movs m JOIN categoria c ON c.id = m.categoria_id GROUP BY c.nombre HAVING SUM(m.monto) <> 0 ORDER BY SUM(m.monto) DESC`)
+  const h5 = libro.addWorksheet('Por sección')
+  encabezado(h5, [{ header: 'Sección', key: 'seccion', width: 30 }, { header: 'Ventas netas', key: 'ventas', width: 18, fmt: PESOS }])
+  for (const s of secciones) h5.addRow({ seccion: s.seccion, ventas: n(s.ventas) })
+
+  const cierres = await prisma.$queryRaw<{ fecha: string; fondo: number; esperado: number; contado: number; diferencia: number; total: number; nota: string | null }[]>(PrismaRuntime.sql`
+    SELECT to_char(fecha, 'YYYY-MM-DD') AS fecha, fondo_inicial AS fondo, efectivo_esperado AS esperado, efectivo_contado AS contado, diferencia, total_ventas AS total, nota
+    FROM cierre_caja WHERE fecha >= ${desde}::date AND fecha <= ${hasta}::date ORDER BY fecha`)
+  const h6 = libro.addWorksheet('Cierres de caja')
+  encabezado(h6, [
+    { header: 'Día', key: 'fecha', width: 13 }, { header: 'Ventas del día', key: 'total', width: 16, fmt: PESOS }, { header: 'Fondo inicial', key: 'fondo', width: 15, fmt: PESOS },
+    { header: 'Efectivo esperado', key: 'esperado', width: 18, fmt: PESOS }, { header: 'Efectivo contado', key: 'contado', width: 17, fmt: PESOS }, { header: 'Diferencia', key: 'diferencia', width: 14, fmt: PESOS }, { header: 'Nota', key: 'nota', width: 34 },
+  ])
+  for (const c of cierres) h6.addRow({ ...c, nota: c.nota ?? '' })
 
   return { libro: Buffer.from(await libro.xlsx.writeBuffer()), resumen }
 }
@@ -219,3 +251,31 @@ export async function haceFaltaReporte(carpeta: string, ahora = new Date(), dias
   }
 }
 export const marcarReporteEnviado = (carpeta: string, ahora = new Date()) => writeFile(join(carpeta, ARCHIVO), JSON.stringify({ enviadoEn: ahora.toISOString() }))
+
+/* ───── Excel de RESPALDO: un libro con los últimos 30 días guardado cada día en una carpeta visible del PC ───── */
+export async function libroDeRespaldo(prisma: Prisma, dias = 30, ahora = new Date()) {
+  const cfg = await leerConfig(prisma)
+  const hasta = hoyEn(cfg.zonaHoraria, ahora)
+  return { ...(await generarExcel(prisma, sumarDias(hasta, -(dias - 1)), hasta)), hasta, nombreNegocio: cfg.nombreNegocio }
+}
+
+const SIN_TILDES = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+/** Guarda el Excel de hoy si todavía no existe y borra los más viejos (se conservan 30 días). Devuelve la ruta si creó uno nuevo. */
+export async function guardarExcelDiario(prisma: Prisma, carpeta: string, ahora = new Date(), conservar = 30): Promise<string | null> {
+  const { libro, hasta, nombreNegocio } = await libroDeRespaldo(prisma, 30, ahora)
+  const prefijo = `${SIN_TILDES(nombreNegocio) || 'Respaldo'}-`
+  const nombre = `${prefijo}${hasta}.xlsx`
+  await mkdir(carpeta, { recursive: true })
+  const ruta = join(carpeta, nombre)
+  let creado: string | null = null
+  if (!(await existe(ruta))) {
+    await writeFile(`${ruta}.tmp`, libro) // se escribe aparte y se renombra: nunca queda un Excel a medias con nombre válido
+    await rename(`${ruta}.tmp`, ruta)
+    creado = ruta
+  }
+  const viejos = (await readdir(carpeta)).filter((f) => f.startsWith(prefijo) && f.endsWith('.xlsx')).sort().reverse().slice(conservar)
+  for (const f of viejos) await unlink(join(carpeta, f)).catch(() => undefined)
+  return creado
+}
+const existe = (ruta: string) => access(ruta).then(() => true, () => false)

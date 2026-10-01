@@ -30,7 +30,7 @@ if (!args.includes('--si')) throw new Error('Esto BORRA todos los datos de la ba
 const prisma = crearPrisma(url)
 
 await prisma.$executeRawUnsafe(
-  'TRUNCATE TABLE movimiento_stock, historial_precio, devolucion_item, devolucion, devolucion_proveedor_item, devolucion_proveedor, venta_item, venta, compra_item, compra, producto, categoria, proveedor, configuracion, usuario RESTART IDENTITY CASCADE',
+  'TRUNCATE TABLE cierre_caja, comentario, movimiento_stock, historial_precio, devolucion_item, devolucion, devolucion_proveedor_item, devolucion_proveedor, venta_item, venta, compra_item, compra, producto, categoria, proveedor, configuracion, usuario RESTART IDENTITY CASCADE',
 )
 if (soloVaciar) {
   console.log('Base de desarrollo vaciada. Al abrir la app verás el asistente de primer arranque.')

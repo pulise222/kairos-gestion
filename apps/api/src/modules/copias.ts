@@ -6,7 +6,7 @@ import { autenticar, requerirRol } from '../middleware/auth.js'
 import { validar } from '../lib/validar.js'
 import { mkdir } from 'node:fs/promises'
 import { reglaDeNegocio } from '../errors.js'
-import { enviarReporte, marcarReporteEnviado } from '../lib/reporte.js'
+import { enviarReporte, libroDeRespaldo, marcarReporteEnviado } from '../lib/reporte.js'
 import type { ConfigCorreo } from '../lib/reporte.js'
 import type { Transporter } from 'nodemailer'
 import { crearCopia, listarCopias, restaurarCopia, rutaDeCopia } from '../lib/copias.js'
@@ -33,6 +33,14 @@ export function rutasCopias(prisma: Prisma, secreto: string, base: Omit<Opciones
     await mkdir(o.carpeta, { recursive: true })
     await marcarReporteEnviado(o.carpeta)
     res.json(r)
+  })
+
+  // Excel con los últimos 30 días (ventas, por sección, cierres, catálogo con precios): se descarga a demanda.
+  r.get('/excel', async (_req, res) => {
+    const { libro, hasta } = await libroDeRespaldo(prisma, 30)
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', `attachment; filename="respaldo-${hasta}.xlsx"`)
+    res.send(libro)
   })
 
   r.get('/:nombre/descargar', async (req, res) => {

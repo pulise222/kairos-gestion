@@ -10,6 +10,7 @@ import { autenticar, requerirRol, usuarioActual } from '../middleware/auth.js'
 import { validar } from '../lib/validar.js'
 import { colorHex, dinero, id, texto } from '../lib/esquemas.js'
 import { normalizar } from '../lib/texto.js'
+import { leerConfig } from './configuracion.js'
 import type { Rol } from '../generated/prisma/enums.js'
 
 /* ───────────────────────── Categorías (HU-05) ───────────────────────── */
@@ -96,6 +97,8 @@ const esquemaProductoBase = z.object({
   costo: dinero,
   precio: dinero,
   stockMinimo: z.number().int().min(0).max(100_000),
+  /** Con control de inventario o sin él. Si no se manda al crear, manda el ajuste «controlarStockPorDefecto». */
+  controlaStock: z.boolean().optional(),
 })
 
 // OJO: los valores por defecto SOLO van en el esquema de creación. Si estuvieran en el base, al editar
@@ -162,12 +165,13 @@ export function rutasProductos(prisma: Prisma, secreto: string, uploadsDir = './
     if (q.estado) {
       const filas =
         q.estado === 'agotado'
-          ? await prisma.$queryRaw<{ id: number }[]>(PrismaRuntime.sql`SELECT id FROM producto WHERE stock <= 0`)
-          : await prisma.$queryRaw<{ id: number }[]>(PrismaRuntime.sql`SELECT id FROM producto WHERE stock <= stock_minimo`)
+          ? await prisma.$queryRaw<{ id: number }[]>(PrismaRuntime.sql`SELECT id FROM producto WHERE controla_stock AND stock <= 0`)
+          : await prisma.$queryRaw<{ id: number }[]>(PrismaRuntime.sql`SELECT id FROM producto WHERE controla_stock AND stock <= stock_minimo`)
       idsPorEstado = filas.map((f) => f.id)
     }
 
     const donde = {
+      esSistema: false, // los productos internos de «venta por monto» no se listan
       ...(verInactivos ? {} : { activo: true }),
       ...(q.categoriaId ? { categoriaId: q.categoriaId } : {}),
       ...(q.proveedorId ? { proveedorId: q.proveedorId } : {}),
@@ -184,9 +188,23 @@ export function rutasProductos(prisma: Prisma, secreto: string, uploadsDir = './
   // Lector de código de barras: coincidencia exacta.
   r.get('/codigo/:codigo', async (req, res) => {
     const yo = usuarioActual(req)
-    const p = await prisma.producto.findFirst({ where: { codigo: { equals: String(req.params.codigo), mode: 'insensitive' }, activo: true }, include: incluir })
+    const p = await prisma.producto.findFirst({ where: { codigo: { equals: String(req.params.codigo), mode: 'insensitive' }, activo: true, esSistema: false }, include: incluir })
     if (!p) throw noEncontrado('El producto')
     res.json(paraRol(p, yo.rol))
+  })
+
+  // «Venta por monto»: devuelve (y crea la primera vez) el producto interno de una sección. Su monto lo escribe quien vende.
+  r.get('/venta-rapida/:categoriaId', async (req, res) => {
+    const cid = validar(id, req.params.categoriaId)
+    const cat = await prisma.categoria.findFirst({ where: { id: cid, activa: true } })
+    if (!cat) throw noEncontrado('La sección (o está desactivada)')
+    const nombre = `Venta por monto · ${cat.nombre}`
+    const p = await prisma.producto.upsert({
+      where: { codigo: `VR-${cid}` },
+      update: { nombre, categoriaId: cid, activo: true }, // si renombran la sección, el nombre se mantiene al día
+      create: { codigo: `VR-${cid}`, nombre, busqueda: '', categoriaId: cid, costo: 0, precio: 0, stock: 0, stockMinimo: 0, controlaStock: false, precioLibre: true, esSistema: true },
+    })
+    res.json({ id: p.id, nombre: p.nombre })
   })
 
   r.get('/:id', async (req, res) => {
@@ -198,8 +216,10 @@ export function rutasProductos(prisma: Prisma, secreto: string, uploadsDir = './
 
   r.post('/', requerirRol('DUENO'), async (req, res) => {
     const yo = usuarioActual(req)
-    const { stockInicial, codigo: codigoPedido, ...d } = validar(esquemaCrear, req.body)
+    const { stockInicial: stockPedido, codigo: codigoPedido, controlaStock: controlaPedido, ...d } = validar(esquemaCrear, req.body)
     await validarRelaciones(d.categoriaId, d.proveedorId)
+    const controlaStock = controlaPedido ?? (await leerConfig(prisma)).controlarStockPorDefecto
+    const stockInicial = controlaStock ? stockPedido : 0 // sin control de inventario no hay stock inicial
 
     const creado = await prisma.$transaction(async (tx) => {
       // Candado: dos productos creados a la vez no pueden recibir el mismo código automático.
@@ -213,7 +233,7 @@ export function rutasProductos(prisma: Prisma, secreto: string, uploadsDir = './
         codigo = String(sig).padStart(4, '0')
         while (await tx.producto.findFirst({ where: { codigo: { equals: codigo, mode: 'insensitive' } } })) codigo = String(Number(codigo) + 1).padStart(4, '0')
       }
-      const p = await tx.producto.create({ data: { ...d, codigo, stock: stockInicial, busqueda: normalizar(`${d.nombre} ${d.descripcion ?? ''}`) }, include: incluir })
+      const p = await tx.producto.create({ data: { ...d, codigo, controlaStock, stock: stockInicial, busqueda: normalizar(`${d.nombre} ${d.descripcion ?? ''}`) }, include: incluir })
       if (stockInicial > 0) {
         await tx.movimientoStock.create({
           data: { productoId: p.id, tipo: 'AJUSTE', cantidad: stockInicial, stockResultante: stockInicial, motivo: 'Stock inicial', usuarioId: yo.id },

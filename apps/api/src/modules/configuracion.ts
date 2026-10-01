@@ -40,11 +40,13 @@ export const esquemaConfig = z.object({
   // Reglas de venta
   /** Pregunta 5 del cliente: ¿se puede vender con stock en cero? Por defecto NO. */
   permitirVentaSinStock: z.boolean(),
+  /** Los productos nuevos nacen CON control de inventario o SIN él. */
+  controlarStockPorDefecto: z.boolean(),
   metaDiaria: dinero,
   billetes: z.array(z.number().int().positive().max(1_000_000)).max(8),
   // Apariencia (null = el color del tema)
   colorAcento: colorHex.nullable(),
-  patron: z.enum(['curvas', 'puntos', 'ondas']),
+  patron: z.enum(['curvas', 'puntos', 'ondas', 'costura']),
   intensidad: z.number().int().min(0).max(100),
   // Módulos
   proveedoresActivo: z.boolean(),
@@ -62,12 +64,13 @@ export const CONFIG_POR_DEFECTO: Config = {
   telefono: '',
   moneda: 'COP',
   zonaHoraria: 'America/Bogota',
-  permitirVentaSinStock: false,
+  permitirVentaSinStock: true, // Kairos: nunca se frena una venta por falta de stock registrado
+  controlarStockPorDefecto: false, // Kairos: los productos nacen sin control de inventario (se activa producto por producto)
   metaDiaria: 0,
   billetes: [10000, 20000, 50000, 100000],
   colorAcento: null,
-  patron: 'curvas',
-  intensidad: 50,
+  patron: 'costura',
+  intensidad: 35,
   proveedoresActivo: true,
   recibo: { encabezado: '¡Gracias por su compra!', pie: 'Vuelva pronto', ancho: 80, mostrarVendedor: true, mostrarNumero: true, avisoSinValidez: true },
   copias: { frecuencia: 'diaria', conservar: 14, destino: '', nube: false },

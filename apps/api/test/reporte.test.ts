@@ -76,7 +76,7 @@ describe('el Excel', () => {
 
     const wb = new ExcelJS.Workbook()
     await wb.xlsx.load(libro as unknown as ArrayBuffer)
-    expect(wb.worksheets.map((h) => h.name)).toEqual(['Resumen', 'Ventas', 'Más vendidos', 'Inventario'])
+    expect(wb.worksheets.map((h) => h.name)).toEqual(['Resumen', 'Ventas', 'Más vendidos', 'Inventario', 'Por sección', 'Cierres de caja'])
     const ventas = wb.getWorksheet('Ventas')!
     expect(ventas.rowCount - 1).toBe(3) // v1, v2 y la anulada; la de hace 20 días NO
     const estados = [2, 3, 4].map((i) => ventas.getRow(i).getCell(5).value)

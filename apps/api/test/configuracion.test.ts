@@ -40,7 +40,7 @@ describe('configuración ampliada (vive en el servidor)', () => {
     await prisma.configuracion.update({ where: { clave: 'patron' }, data: { valor: 'esto-no-es-un-patron' } })
 
     const c = (await api().get('/api/configuracion').set(auth(dueno.token)).expect(200)).body
-    expect(c.patron).toBe('curvas') // volvió a su valor por defecto
+    expect(c.patron).toBe('costura') // volvió a su valor por defecto (el patrón de Kairos)
     expect(c.metaDiaria).toBe(1800000) // el resto sigue intacto
     expect(c.nombreNegocio).toBe('Tienda de prueba')
   })
@@ -73,7 +73,7 @@ describe('marca pública (pantalla de acceso)', () => {
 
   it('antes de configurar el sistema devuelve los valores por defecto', async () => {
     const r = await api().get('/api/marca').expect(200)
-    expect(r.body).toMatchObject({ nombreNegocio: 'Mi negocio', patron: 'curvas' })
+    expect(r.body).toMatchObject({ nombreNegocio: 'Mi negocio', patron: 'costura' })
   })
 })
 

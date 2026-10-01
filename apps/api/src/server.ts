@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises'
 import { crearApp } from './app.js'
 import { crearCopia, haceFaltaCopiaAuto } from './lib/copias.js'
-import { enviarReporte, haceFaltaReporte, leerConfigCorreo, marcarReporteEnviado } from './lib/reporte.js'
+import { guardarExcelDiario, enviarReporte, haceFaltaReporte, leerConfigCorreo, marcarReporteEnviado } from './lib/reporte.js'
 import { leerEnv } from './config/env.js'
 import { crearPrisma } from './db.js'
 
@@ -24,7 +24,18 @@ const revisarCopia = async () => {
     console.error('[copias] la copia automática falló:', e) // se reintenta en 30 minutos
   }
 }
+// Excel de respaldo: una vez al día se deja un libro con los últimos 30 días en una carpeta visible (EXCEL_DIR), por si hay que abrirlo sin el sistema.
+const carpetaExcel = process.env.EXCEL_DIR ?? './datos/excel'
+const revisarExcel = async () => {
+  try {
+    const ruta = await guardarExcelDiario(prisma, carpetaExcel)
+    if (ruta) console.log(`[excel] respaldo guardado: ${ruta}`)
+  } catch (e) {
+    console.error('[excel] no se pudo guardar el respaldo en Excel:', e)
+  }
+}
 setTimeout(revisarCopia, 60_000)
+setTimeout(revisarExcel, 90_000)
 // Reporte semanal por correo (solo si el correo está configurado): una vez cada 7 días.
 const revisarReporte = async () => {
   if (!correo) return
@@ -39,7 +50,7 @@ const revisarReporte = async () => {
   }
 }
 setTimeout(revisarReporte, 120_000)
-const reloj = setInterval(() => { void revisarCopia(); void revisarReporte() }, 30 * 60_000)
+const reloj = setInterval(() => { void revisarCopia(); void revisarReporte(); void revisarExcel() }, 30 * 60_000)
 
 // Cierre ordenado: termina las peticiones en curso y cierra la conexión a la base de datos.
 const cerrar = async () => {

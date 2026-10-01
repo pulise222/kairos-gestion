@@ -109,8 +109,10 @@ export async function registrarDevolucionCliente(prisma: Prisma, usuario: Usuari
       })
 
       // Solo lo que vuelve en buen estado reingresa al inventario (y deja su movimiento).
+      // Los productos sin control de inventario devuelven el dinero pero no tienen stock que reingresar.
+      const controlan = new Set((await tx.producto.findMany({ where: { id: { in: detalle.map((d) => d.l.productoId) }, controlaStock: true }, select: { id: true } })).map((p) => p.id))
       for (const { it, l } of [...detalle].sort((a, b) => a.l.productoId - b.l.productoId)) {
-        if (!it.reingresaStock) continue
+        if (!it.reingresaStock || !controlan.has(l.productoId)) continue
         const filasStock = await tx.$queryRaw<{ stock: number }[]>(
           PrismaRuntime.sql`UPDATE producto SET stock = stock + ${it.cantidad}, actualizado_en = now() WHERE id = ${l.productoId} RETURNING stock`,
         )
@@ -198,6 +200,7 @@ export async function registrarDevolucionProveedor(prisma: Prisma, usuario: Usua
 
       for (const d of detalle) {
         const nombre = producto.get(d.productoId)!.nombre
+        if (!producto.get(d.productoId)!.controlaStock) throw reglaDeNegocio('PRODUCTO_SIN_CONTROL', `«${nombre}» no lleva control de inventario: actívalo en su ficha para devolverlo a un proveedor.`)
         const quedo = await descontarStockProveedor(tx, d.productoId, d.cantidad, nombre)
         await tx.movimientoStock.create({
           data: { productoId: d.productoId, tipo: 'DEVOLUCION_PROVEEDOR', cantidad: -d.cantidad, stockResultante: quedo, motivo: `${TEXTO_MOTIVO_PROVEEDOR[datos.motivo]}${datos.nota ? ` · ${datos.nota}` : ''}`, compraId: datos.compraId, devolucionProveedorId: dev.id, usuarioId: usuario.id },

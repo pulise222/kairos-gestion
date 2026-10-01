@@ -12,6 +12,8 @@ import { rutasDevolucionesProveedor, rutasDevolucionesVenta } from './modules/de
 import type { Transporter } from 'nodemailer'
 import type { ConfigCorreo } from './lib/reporte.js'
 import { rutasImportacion } from './modules/importacion.js'
+import { rutasCierres } from './modules/cierres.js'
+import { rutasComentarios } from './modules/comentarios.js'
 import { rutasCopias } from './modules/copias.js'
 import { rutasCompras, rutasInventario } from './modules/inventario.js'
 import { rutasPanel } from './modules/panel.js'
@@ -73,6 +75,8 @@ export function crearApp({ prisma, jwtSecret, corsOrigin, limitarIntentos = true
   api.use('/compras', rutasCompras(prisma, jwtSecret))
   api.use('/inventario', rutasInventario(prisma, jwtSecret))
   api.use('/panel', rutasPanel(prisma, jwtSecret))
+  api.use('/cierres', rutasCierres(prisma, jwtSecret))
+  api.use('/comentarios', rutasComentarios(prisma, jwtSecret))
   api.use('/copias', rutasCopias(prisma, jwtSecret, { carpeta: copiasDir, fotos: uploadsDir, carpetaExtra: copiasExtraDir }, correo, transporteCorreo))
 
   // Las fotos son públicas por diseño (no tienen datos sensibles); los nombres son aleatorios.

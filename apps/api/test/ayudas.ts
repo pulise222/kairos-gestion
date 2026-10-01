@@ -19,7 +19,7 @@ export const api = () => request(app)
 export function baseLimpia() {
   beforeEach(async () => {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE movimiento_stock, historial_precio, devolucion_item, devolucion, devolucion_proveedor_item, devolucion_proveedor, venta_item, venta, compra_item, compra, producto, categoria, proveedor, configuracion, usuario RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE cierre_caja, comentario, movimiento_stock, historial_precio, devolucion_item, devolucion, devolucion_proveedor_item, devolucion_proveedor, venta_item, venta, compra_item, compra, producto, categoria, proveedor, configuracion, usuario RESTART IDENTITY CASCADE',
     )
   })
   afterAll(async () => {
@@ -30,9 +30,13 @@ export function baseLimpia() {
 export const CLAVE = 'clave-de-prueba-123'
 
 /** Crea el dueño por el flujo real de primer arranque y devuelve su token. */
-export async function crearDueno() {
+export async function crearDueno(opciones: { kairos?: boolean } = {}) {
   const r = await api().post('/api/setup').send({ nombre: 'Juan Dueño', usuario: 'juan', contrasena: CLAVE, nombreNegocio: 'Tienda de prueba' })
-  return { token: r.body.token as string, id: r.body.usuario.id as number }
+  const token = r.body.token as string
+  // Las pruebas heredadas del sistema base dan por hecho que los productos llevan inventario y que no se vende sin stock.
+  // Los valores por defecto de ESTE cliente (kairos.test.ts) son otros: allí se pide { kairos: true }.
+  if (!opciones.kairos) await api().put('/api/configuracion').set(auth(token)).send({ controlarStockPorDefecto: true, permitirVentaSinStock: false, patron: 'curvas', intensidad: 50 })
+  return { token, id: r.body.usuario.id as number }
 }
 
 export async function crearVendedor(tokenDueno: string, usuario = 'maria') {

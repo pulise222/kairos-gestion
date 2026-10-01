@@ -116,11 +116,11 @@ export function rutasPanel(prisma: Prisma, secreto: string) {
       prisma.$queryRaw<{ producto_id: number; nombre: string; unidades: bigint; ingresos: bigint }[]>(PrismaRuntime.sql`
         WITH movs AS (
           SELECT i.producto_id, i.nombre_producto AS nombre, i.cantidad AS u, i.cantidad * i.precio_unitario AS ing
-          FROM venta_item i JOIN venta v ON v.id = i.venta_id
+          FROM venta_item i JOIN venta v ON v.id = i.venta_id JOIN producto pp ON pp.id = i.producto_id AND NOT pp.es_sistema
           WHERE v.estado = 'COMPLETADA' AND v.creada_en >= ${inicio(desde)} AND v.creada_en < ${finExclusivo(hasta)}
           UNION ALL
           SELECT di.producto_id, di.nombre_producto, -di.cantidad, -di.cantidad * di.precio_unitario
-          FROM devolucion_item di JOIN devolucion dv ON dv.id = di.devolucion_id
+          FROM devolucion_item di JOIN devolucion dv ON dv.id = di.devolucion_id JOIN producto pd ON pd.id = di.producto_id AND NOT pd.es_sistema
           WHERE dv.creada_en >= ${inicio(desde)} AND dv.creada_en < ${finExclusivo(hasta)}
         )
         SELECT producto_id, nombre, SUM(u) AS unidades, SUM(ing) AS ingresos FROM movs
@@ -145,7 +145,7 @@ export function rutasPanel(prisma: Prisma, secreto: string) {
       prisma.$queryRaw<{ id: number; nombre: string; stock: number; stock_minimo: number; proveedor: string | null }[]>(PrismaRuntime.sql`
         SELECT p.id, p.nombre, p.stock, p.stock_minimo, pr.nombre AS proveedor
         FROM producto p LEFT JOIN proveedor pr ON pr.id = p.proveedor_id
-        WHERE p.activo AND p.stock <= p.stock_minimo
+        WHERE p.activo AND p.controla_stock AND NOT p.es_sistema AND p.stock <= p.stock_minimo
         ORDER BY (p.stock::float / NULLIF(p.stock_minimo, 0)) ASC NULLS FIRST, p.nombre LIMIT 10`),
 
       // Las ventas más recientes DENTRO del rango.

@@ -14,7 +14,8 @@ type Tx = PrismaNs.TransactionClient
 
 const esquemaVenta = z.object({
   items: z
-    .array(z.object({ productoId: id, cantidad: cantidadPositiva }))
+    // «precio» solo lo acepta el servidor en los productos de VENTA POR MONTO (precio libre); en los demás se ignora y manda el de la base.
+    .array(z.object({ productoId: id, cantidad: cantidadPositiva, precio: dinero.optional() }))
     .min(1, 'La venta debe tener al menos un producto')
     .max(200, 'Demasiados productos en una sola venta'),
   pagado: dinero,
@@ -79,20 +80,36 @@ async function crearVenta(prisma: Prisma, vendedor: UsuarioAuth, entrada: DatosV
   return prisma.$transaction(async (tx) => {
     const config = await leerConfig(tx)
 
-    // Si el mismo producto viene repetido, se suman las cantidades.
-    const cantidades = new Map<number, number>()
-    for (const it of entrada.items) cantidades.set(it.productoId, (cantidades.get(it.productoId) ?? 0) + it.cantidad)
-    // Orden fijo por id: evita bloqueos cruzados (deadlocks) entre ventas simultáneas.
-    const ids = [...cantidades.keys()].sort((a, b) => a - b)
-
-    const productos = await tx.producto.findMany({ where: { id: { in: ids }, activo: true } })
-    if (productos.length !== ids.length) {
-      const faltan = ids.filter((i) => !productos.some((p) => p.id === i))
+    const idsPedidos = [...new Set(entrada.items.map((i) => i.productoId))]
+    const productos = await tx.producto.findMany({ where: { id: { in: idsPedidos }, activo: true } })
+    if (productos.length !== idsPedidos.length) {
+      const faltan = idsPedidos.filter((i) => !productos.some((p) => p.id === i))
       throw reglaDeNegocio('PRODUCTO_NO_DISPONIBLE', 'Hay productos que no existen o están desactivados', { productoIds: faltan })
     }
     const porId = new Map(productos.map((p) => [p.id, p]))
 
-    const total = ids.reduce((suma, i) => suma + porId.get(i)!.precio * cantidades.get(i)!, 0)
+    // Líneas de la venta. Los productos normales se SUMAN por producto (con el precio de la base de datos).
+    // Las ventas «por monto» (precio libre) NO se suman: cada una conserva el monto que se escribió.
+    const cantidades = new Map<number, number>()
+    const porMonto: { productoId: number; nombre: string; cantidad: number; precio: number }[] = []
+    for (const it of entrada.items) {
+      const p = porId.get(it.productoId)!
+      if (p.precioLibre) {
+        if (!it.precio || it.precio < 1) throw reglaDeNegocio('MONTO_REQUERIDO', `Escribe el monto de «${p.nombre}»`)
+        porMonto.push({ productoId: p.id, nombre: p.nombre, cantidad: it.cantidad, precio: it.precio })
+      } else {
+        cantidades.set(it.productoId, (cantidades.get(it.productoId) ?? 0) + it.cantidad)
+      }
+    }
+    // Orden fijo por id: evita bloqueos cruzados (deadlocks) entre ventas simultáneas.
+    const ids = [...cantidades.keys()].sort((a, b) => a - b)
+
+    const lineas = [
+      ...ids.map((i) => { const p = porId.get(i)!; return { productoId: i, nombre: p.nombre, cantidad: cantidades.get(i)!, precio: p.precio, costo: p.costo } }),
+      // Una venta por monto no tiene costo conocido: se guarda costo = precio (ganancia 0) para no inflar la ganancia del panel.
+      ...porMonto.map((m) => ({ productoId: m.productoId, nombre: m.nombre, cantidad: m.cantidad, precio: m.precio, costo: m.precio })),
+    ]
+    const total = lineas.reduce((suma, l) => suma + l.precio * l.cantidad, 0)
     if (total > MAX_DINERO) throw reglaDeNegocio('TOTAL_EXCESIVO', 'El total de la venta es demasiado grande')
 
     // HU-13: no se confirma pagando de menos. Transferencia/tarjeta pagan exacto (no hay "vueltas" que dar).
@@ -102,9 +119,11 @@ async function crearVenta(prisma: Prisma, vendedor: UsuarioAuth, entrada: DatosV
     }
 
     // Descuento de stock + registro del movimiento, producto por producto (en orden de id).
+    // Los productos SIN control de inventario no descuentan nada ni dejan movimiento.
     const stockResultante = new Map<number, number>()
     for (const i of ids) {
       const p = porId.get(i)!
+      if (!p.controlaStock) continue
       const quedo = await descontarStock(tx, i, cantidades.get(i)!, config.permitirVentaSinStock)
       if (quedo === null) {
         throw conflicto('STOCK_INSUFICIENTE', `No hay stock suficiente de "${p.nombre}"`, { productoId: i, nombre: p.nombre, solicitado: cantidades.get(i), disponible: p.stock })
@@ -122,17 +141,14 @@ async function crearVenta(prisma: Prisma, vendedor: UsuarioAuth, entrada: DatosV
         claveIdempotencia,
         items: {
           // Copia de nombre, precio y costo al momento de vender (las ventas pasadas nunca cambian).
-          create: ids.map((i) => {
-            const p = porId.get(i)!
-            return { productoId: i, nombreProducto: p.nombre, cantidad: cantidades.get(i)!, precioUnitario: p.precio, costoUnitario: p.costo }
-          }),
+          create: lineas.map((l) => ({ productoId: l.productoId, nombreProducto: l.nombre, cantidad: l.cantidad, precioUnitario: l.precio, costoUnitario: l.costo })),
         },
       },
       include: { items: true },
     })
 
     await tx.movimientoStock.createMany({
-      data: ids.map((i) => ({
+      data: ids.filter((i) => stockResultante.has(i)).map((i) => ({
         productoId: i,
         tipo: 'VENTA' as const,
         cantidad: -cantidades.get(i)!,
@@ -163,7 +179,9 @@ export async function anularVenta(prisma: Prisma, dueno: UsuarioAuth, ventaId: n
       throw conflicto('VENTA_YA_ANULADA', 'Esta venta ya fue anulada')
     }
     const items = await tx.ventaItem.findMany({ where: { ventaId }, orderBy: { productoId: 'asc' } })
+    const controlan = new Set((await tx.producto.findMany({ where: { id: { in: items.map((i) => i.productoId) }, controlaStock: true }, select: { id: true } })).map((p) => p.id))
     for (const it of items) {
+      if (!controlan.has(it.productoId)) continue // sin control de inventario: no hay stock que devolver
       const quedo = await devolverStock(tx, it.productoId, it.cantidad)
       await tx.movimientoStock.create({
         data: { productoId: it.productoId, tipo: 'ANULACION', cantidad: it.cantidad, stockResultante: quedo, motivo, ventaId, usuarioId: dueno.id },

@@ -11,3 +11,6 @@ Thumbs.db
 
 # Material del cliente (fotos del cuaderno, precios, logo original): datos privados, nunca van al repositorio
 material-cliente/
+
+# Claves de prueba del entorno de desarrollo (nunca al repositorio)
+ENTRAR.txt
