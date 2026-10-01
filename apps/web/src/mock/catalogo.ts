@@ -51,9 +51,14 @@ export const proveedoresIniciales: Proveedor[] = [
   { id: 6, nombre: 'Dulces Tropical', telefono: '312 444 5566', correo: '', notas: 'Ya no trabajamos con ellos.', activo: false },
 ]
 
+// Las fotos de la demo viven en public/productos/ y se llaman como el producto («Agua 600 ml» → agua-600-ml.webp).
+// BASE_URL hace que funcionen igual en la raíz y en una subcarpeta (GitHub Pages).
+const nombreArchivo = (nombre: string) => nombre.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const foto = (nombre: string) => `${import.meta.env.BASE_URL}productos/${nombreArchivo(nombre)}.webp`
+
 // Los primeros llevan un número corto propio (101, 102…); el resto, código de barras de 13 dígitos.
 const p = (id: number, codigo: string, nombre: string, categoriaId: string, proveedorId: number, precio: number, costo: number, stock: number, minimo: number): Producto => ({
-  id, codigo, nombre, categoriaId, proveedorId, precio, costo, stock, minimo, activo: true,
+  id, codigo, nombre, categoriaId, proveedorId, precio, costo, stock, minimo, activo: true, imagen: foto(nombre),
 })
 
 export const productosIniciales: Producto[] = [
