@@ -1,0 +1,108 @@
+@import 'tailwindcss';
+@import './design/tokens.css';
+
+/* Conecta los tokens con Tailwind: se usan como bg-panel, text-muted, border-line, etc.
+   Como apuntan a variables CSS, el cambio de tema no necesita clases "dark:" por todos lados. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-tile: var(--tile);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Bodoni Moda', Georgia, serif;
+  --radius-card: var(--radius-card);
+}
+
+html {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color 0.25s, color 0.25s;
+}
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
+
+/* Cifras tabulares: los números no "bailan" al cambiar y las columnas quedan alineadas. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+/* Bodoni es muy fina: solo se usa en tamaños grandes (títulos y cifras destacadas). */
+.display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Efecto glass: para cosas que FLOTAN (barras, diálogos, buscador). Las tarjetas con datos son sólidas. */
+.glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-edge), var(--glass-shadow);
+}
+/* Si el navegador no soporta el desenfoque, cae a un fondo sólido legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--panel);
+  }
+}
+
+/* Las manchas de color del fondo derivan muy despacio */
+@keyframes deriva {
+  to { transform: translate(120px, -60px); }
+}
+.orbe { animation: deriva 24s ease-in-out infinite alternate; }
+.orbe-2 { animation-duration: 30s; animation-direction: alternate-reverse; }
+
+/* Destello breve al agregar un producto al carrito */
+@keyframes destello {
+  from { background-color: color-mix(in srgb, var(--accent) 28%, transparent); }
+  to { background-color: transparent; }
+}
+.destello { animation: destello 0.7s ease-out; }
+
+/* Entrada suave de los avisos */
+@keyframes entra {
+  from { opacity: 0; transform: translateY(-8px); }
+}
+.aviso { animation: entra 0.2s ease-out; }
+
+/* Capa detrás de los diálogos */
+dialog::backdrop {
+  background: rgba(10, 8, 6, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+/* Foco visible y accesible. Va en @layer base para que las clases de Tailwind (outline-none) puedan
+   anularlo donde el contenedor ya muestra su propio anillo de foco. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Panel lateral: entra deslizándose desde la derecha */
+@keyframes desliza {
+  from { transform: translateX(100%); }
+}
+.panel-lateral[open] { animation: desliza 0.22s ease-out; }

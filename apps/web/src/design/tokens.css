@@ -1,0 +1,58 @@
+/*
+  TOKENS DE DISEÑO · única fuente de verdad de colores, tipografía y efectos.
+  Para personalizar el sistema para un cliente basta con sobrescribir estas variables
+  (Configuración → Apariencia lo hará en tiempo de ejecución), sin tocar componentes.
+*/
+
+/* Fuentes instaladas dentro del proyecto: el sistema funciona sin internet. */
+@import '@fontsource/bodoni-moda/latin-500.css';
+@import '@fontsource/bodoni-moda/latin-600.css';
+@import '@fontsource/dm-sans/latin-400.css';
+@import '@fontsource/dm-sans/latin-500.css';
+@import '@fontsource/dm-sans/latin-600.css';
+@import '@fontsource/dm-sans/latin-700.css';
+
+/* Modo claro · A · Arena (elegido: el fondo se separa de las tarjetas y el texto gris es más legible) */
+:root {
+  --bg: #e8e0d2;
+  --panel: #fbf8f2;
+  --line: #cdc2ae;
+  --text: #1c1814;
+  --muted: #665d50;
+  --accent: #b0481f;
+  --on-accent: #ffffff;
+  --tile: #ded5c4;
+
+  /* Estados (iguales en toda la app) */
+  --ok: #2e9e6b;
+  --warn: #d99a1e;
+  --bad: #d64545;
+
+  /* Glass: relleno translúcido + borde de luz */
+  --glass-fill: rgba(255, 255, 255, 0.52);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 6px 22px rgba(60, 40, 20, 0.12);
+
+  --radius: 10px;
+  --radius-card: 18px;
+}
+
+/* Modo oscuro · E · Obsidiana y oro */
+:root[data-theme='dark'] {
+  --bg: #0b0b0d;
+  --panel: #141416;
+  --line: #2a2a2e;
+  --text: #f4f1ea;
+  --muted: #9c978c;
+  --accent: #d4b26a;
+  --on-accent: #1a1405;
+  --tile: #1b1b1e;
+
+  --ok: #3dbb84;
+  --warn: #e8ae3a;
+  --bad: #e86060;
+
+  --glass-fill: rgba(30, 30, 34, 0.52);
+  --glass-edge: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
