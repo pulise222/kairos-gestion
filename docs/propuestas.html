@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propuestas · Nombre, logo y fondo</title>
+<style>
+  /* Tokens tomados de DISENO_Y_PANTALLAS.md (Porcelana / Obsidiana y oro) */
+  :root{--bg:#F6F2EC;--panel:#fff;--line:#E6DFD3;--text:#1C1814;--muted:#7C7366;--accent:#B8502A;--on-accent:#fff;--tile:#F1EBE1}
+  [data-theme="dark"]{--bg:#0B0B0D;--panel:#141416;--line:#2A2A2E;--text:#F4F1EA;--muted:#9C978C;--accent:#D4B26A;--on-accent:#1A1405;--tile:#1B1B1E}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .25s,color .25s}
+  .serif{font-family:Georgia,"Times New Roman",serif}
+  header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+  h1{margin:0;font-size:20px;font-weight:600}
+  h2{font-size:22px;margin:40px 0 4px}
+  .sub{color:var(--muted);margin:0 0 20px}
+  main{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+  .ctrls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  button.theme{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:8px 14px;cursor:pointer;font:inherit}
+  label.rng{color:var(--muted);font-size:13px;display:flex;gap:8px;align-items:center}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
+  .card:hover{transform:translateY(-2px)}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .pad{padding:22px}
+  .tag{display:inline-block;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+  .logo-stage{display:flex;align-items:center;gap:14px;margin:14px 0}
+  .logo-stage svg{width:56px;height:56px;color:var(--accent)}
+  .word{font-family:Georgia,serif;font-size:34px;letter-spacing:-.01em;line-height:1}
+  .apps{display:flex;gap:10px;align-items:center;margin:14px 0 6px}
+  .icon{width:44px;height:44px;border-radius:11px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+  .icon svg{width:26px;height:26px}
+  .small{color:var(--muted);font-size:13px;margin:6px 0 0}
+  .bgcard{position:relative;height:300px;background:var(--bg)}
+  .bgcard canvas{position:absolute;inset:0;width:100%;height:100%}
+  .grain{position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply}
+  [data-theme="dark"] .grain{mix-blend-mode:screen;opacity:.12}
+  .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.18) 100%)}
+  [data-theme="light"] .vig{background:radial-gradient(ellipse at center,transparent 50%,rgba(120,90,50,.14) 100%)}
+  .login{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:210px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+  .login .f{height:26px;border:1px solid var(--line);border-radius:8px;margin:8px 0;background:var(--bg)}
+  .login .b{height:28px;border-radius:8px;background:var(--accent);margin-top:10px}
+  .login b{font-family:Georgia,serif;font-size:16px}
+  .hint{margin-top:30px;padding:16px 20px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Control de Tienda · Propuestas de identidad</h1>
+  <div class="ctrls">
+    <label class="rng">Intensidad del fondo <input id="int" type="range" min="4" max="40" value="16"></label>
+    <button class="theme" id="tema">☾ Cambiar a modo oscuro</button>
+  </div>
+</header>
+<main>
+
+<h2 class="serif">1 · Nombre y logo</h2>
+<p class="sub">Haz clic en la que más te guste. Cada logo se ve bien en un solo color, así se adapta al color de cada cliente.</p>
+<div class="grid" id="logos">
+
+  <div class="card pad" data-k="A">
+    <span class="tag">Opción A</span>
+    <div class="logo-stage">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Anaquel: tres repisas con una A formada por los estantes -->
+        <path d="M8 56 32 8l24 48"/><path d="M17 38h30"/><path d="M12.5 47h39"/>
+        <circle cx="32" cy="27" r="3" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="word">Anaquel</span>
+    </div>
+    <div class="apps"><div class="icon"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 56 32 8l24 48"/><path d="M17 38h30"/></svg></div><span class="small">Ícono de la app</span></div>
+    <p class="small">La repisa de la tienda donde se ordena todo. Sencillo, clásico y fácil de recordar.</p>
+  </div>
+
+  <div class="card pad" data-k="B">
+    <span class="tag">Opción B</span>
+    <div class="logo-stage">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Mostrador: M dentro de un anillo de stock parcialmente lleno -->
+        <circle cx="32" cy="32" r="25" opacity=".25"/>
+        <path d="M32 7a25 25 0 1 1-23.8 17.3"/>
+        <path d="M20 43V23l12 13 12-13v20"/>
+      </svg>
+      <span class="word">Mostrador</span>
+    </div>
+    <div class="apps"><div class="icon"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 46V20l16 16 16-16v26"/></svg></div><span class="small">Ícono de la app</span></div>
+    <p class="small">La M envuelta en un anillo de stock (tu firma visual). Directo: es donde ocurre la venta.</p>
+  </div>
+
+  <div class="card pad" data-k="C">
+    <span class="tag">Opción C</span>
+    <div class="logo-stage">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Nivel: curvas de nivel concéntricas, igual que el fondo -->
+        <path d="M32 6c14 0 26 10 26 24 0 16-12 28-27 28C17 58 6 47 6 33 6 17 18 6 32 6z"/>
+        <path d="M32 15c9 0 17 7 17 16 0 11-8 19-18 19-9 0-16-7-16-16 0-11 7-19 17-19z"/>
+        <path d="M32 24c5 0 9 4 9 8 0 5-4 9-9 9-5 0-8-4-8-8 0-5 3-9 8-9z"/>
+      </svg>
+      <span class="word">Nivel</span>
+    </div>
+    <div class="apps"><div class="icon"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8c13 0 24 9 24 22 0 15-11 26-25 26C17 56 8 45 8 32 8 18 18 8 32 8z"/><circle cx="32" cy="32" r="6" fill="currentColor"/></svg></div><span class="small">Ícono de la app</span></div>
+    <p class="small">"Nivel" de stock y curvas de nivel del fondo: el nombre y el diseño cuentan la misma idea. Es el más distintivo.</p>
+  </div>
+</div>
+
+<h2 class="serif">2 · Fondo generado con código</h2>
+<p class="sub">Animados de verdad, muy lentos. Se verían así en el Login y el Primer arranque (en la pantalla de Venta casi no se notan). Mueve la intensidad arriba y cambia de modo para compararlos.</p>
+<div class="grid" id="fondos">
+  <div class="card" data-k="1"><div class="bgcard"><canvas data-kind="contour"></canvas><div class="grain"></div><div class="vig"></div><div class="login"><b>Tu negocio</b><div class="f"></div><div class="f"></div><div class="b"></div></div></div>
+    <div class="pad"><span class="tag">Variante 1</span><p class="small"><b style="color:var(--text)">Curvas de nivel.</b> Líneas topográficas finas que se deforman despacio. Mi recomendación: es la más elegante y encaja con el logo C.</p></div></div>
+  <div class="card" data-k="2"><div class="bgcard"><canvas data-kind="dots"></canvas><div class="grain"></div><div class="vig"></div><div class="login"><b>Tu negocio</b><div class="f"></div><div class="f"></div><div class="b"></div></div></div>
+    <div class="pad"><span class="tag">Variante 2</span><p class="small"><b style="color:var(--text)">Malla de puntos.</b> Una cuadrícula de puntos que respira como una ola. Más técnica y futurista, más discreta.</p></div></div>
+  <div class="card" data-k="3"><div class="bgcard"><canvas data-kind="waves"></canvas><div class="grain"></div><div class="vig"></div><div class="login"><b>Tu negocio</b><div class="f"></div><div class="f"></div><div class="b"></div></div></div>
+    <div class="pad"><span class="tag">Variante 3</span><p class="small"><b style="color:var(--text)">Ondas.</b> Líneas horizontales que ondulan, como un pulso o una gráfica. Más dinámica.</p></div></div>
+</div>
+
+<div class="hint">Cuando elijas, dime por ejemplo: <b>"Logo C, fondo 1"</b> (y si quieres otro nombre, también). Si el modo oscuro dorado te convence, dímelo; si no, te muestro alternativas.</div>
+</main>
+
+<!-- Grano: ruido fractal generado con SVG, sin imágenes -->
+<svg width="0" height="0" style="position:absolute"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .6 0"/></filter></svg>
+<script>
+const root=document.documentElement;
+document.querySelectorAll('.grain').forEach(g=>{g.style.filter='';g.innerHTML='<svg width="100%" height="100%"><rect width="100%" height="100%" filter="url(#n)"/></svg>'});
+
+// Selección visual de tarjetas
+for(const id of ['logos','fondos']){
+  const cs=document.querySelectorAll('#'+id+' .card');
+  cs.forEach(c=>c.onclick=()=>{cs.forEach(x=>x.classList.remove('sel'));c.classList.add('sel')});
+}
+
+// Tema
+const btn=document.getElementById('tema');
+btn.onclick=()=>{const d=root.dataset.theme==='dark';root.dataset.theme=d?'light':'dark';btn.textContent=d?'☾ Cambiar a modo oscuro':'☀ Cambiar a modo claro'};
+
+// --- Generadores de fondo (canvas) ---
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const intens=document.getElementById('int');
+const css=n=>getComputedStyle(root).getPropertyValue(n).trim();
+
+// Campo suave pseudoaleatorio: suma de senos (barato y continuo)
+const field=(x,y,t)=>Math.sin(x*1.3+t*.6)+Math.sin(y*1.7-t*.5)+Math.sin((x+y)*.9+t*.4)+.6*Math.sin((x*2.1-y*1.4)+t*.3);
+
+const EDGES=[[],[[3,2]],[[2,1]],[[3,1]],[[0,1]],[[0,3],[2,1]],[[0,2]],[[0,3]],[[0,3]],[[0,2]],[[0,1],[3,2]],[[0,1]],[[3,1]],[[2,1]],[[3,2]],[]];
+
+function contour(ctx,w,h,t){
+  const s=14,cols=Math.ceil(w/s)+1,rows=Math.ceil(h/s)+1,sc=.045;
+  const v=new Float32Array(cols*rows);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++)v[j*cols+i]=field(i*s*sc*1.0,j*s*sc*1.0,t);
+  ctx.beginPath();
+  for(let L=-3;L<=3;L+=.5){
+    for(let j=0;j<rows-1;j++)for(let i=0;i<cols-1;i++){
+      const a=v[j*cols+i],b=v[j*cols+i+1],c=v[(j+1)*cols+i+1],d=v[(j+1)*cols+i];
+      const k=(a>L?8:0)|(b>L?4:0)|(c>L?2:0)|(d>L?1:0);
+      if(k===0||k===15)continue;
+      const x0=i*s,y0=j*s;
+      const p=e=>e===0?[x0+s*(L-a)/(b-a),y0]:e===1?[x0+s,y0+s*(L-b)/(c-b)]:e===2?[x0+s*(L-d)/(c-d),y0+s]:[x0,y0+s*(L-a)/(d-a)];
+      for(const [e1,e2] of EDGES[k]){const A=p(e1),B=p(e2);ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1])}
+    }
+  }
+  ctx.stroke();
+}
+function dots(ctx,w,h,t){
+  const s=20;
+  for(let y=s/2;y<h+s;y+=s)for(let x=s/2;x<w+s;x+=s){
+    const f=field(x*.012,y*.012,t); // -3..3
+    const r=1.1+ (f+3)/6*2.4;
+    const dx=Math.sin(y*.02+t)*3, dy=Math.cos(x*.02+t*.8)*3;
+    ctx.beginPath();ctx.arc(x+dx,y+dy,r,0,6.283);ctx.fill();
+  }
+}
+function waves(ctx,w,h,t){
+  const gap=15;
+  for(let y=-20;y<h+40;y+=gap){
+    ctx.beginPath();
+    for(let x=0;x<=w;x+=8){
+      const yy=y+Math.sin(x*.012+y*.02+t*.8)*13+Math.sin(x*.027-t*.5)*6;
+      x?ctx.lineTo(x,yy):ctx.moveTo(x,yy);
+    }
+    ctx.stroke();
+  }
+}
+const fns={contour,dots,waves};
+
+const cvs=[...document.querySelectorAll('canvas')];
+function frame(now){
+  const t=now/1000*.5;
+  for(const c of cvs){
+    const r=c.getBoundingClientRect(),dpr=devicePixelRatio||1;
+    if(c.width!==Math.round(r.width*dpr)){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr)}
+    const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,r.width,r.height);
+    ctx.globalAlpha=intens.value/100;
+    ctx.strokeStyle=ctx.fillStyle=css('--accent');
+    ctx.lineWidth=1;
+    fns[c.dataset.kind](ctx,r.width,r.height,t);
+  }
+  if(!reduce)requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+if(reduce){intens.oninput=()=>requestAnimationFrame(frame);btn.addEventListener('click',()=>setTimeout(()=>requestAnimationFrame(frame),0))}
+</script>
+</body>
+</html>

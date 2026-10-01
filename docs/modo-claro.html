@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modo claro · 3 opciones</title>
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;background:#222;color:#eee;padding:24px}
+  h1{font-size:20px;margin:0 0 4px} p.sub{margin:0 0 20px;color:#aaa;font-size:14px}
+  .fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+  .op{border-radius:16px;padding:16px;background:var(--bg);color:var(--text);border:1px solid var(--line)}
+  .op h2{margin:0 0 2px;font-size:16px} .op small{color:var(--muted)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;box-shadow:var(--sombra)}
+  .num{font-size:26px;font-weight:700;margin:4px 0}
+  .fila2{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+  .fila2:first-of-type{border-top:0}
+  .tile{background:var(--tile);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:8px}
+  .btn{display:inline-block;background:var(--accent);color:#fff;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:600;margin-top:10px}
+  .muted{color:var(--muted);font-size:13px} .ok{color:#237a52;font-weight:600}
+  #a{--bg:#e8e0d2;--panel:#fbf8f2;--line:#cdc2ae;--text:#1c1814;--muted:#665d50;--accent:#b0481f;--tile:#ded5c4;--sombra:0 2px 8px rgba(60,40,20,.10)}
+  #b{--bg:#d9d6cf;--panel:#f4f2ed;--line:#b9b3a6;--text:#1a1816;--muted:#5f5a50;--accent:#a8431f;--tile:#e4e0d6;--sombra:0 2px 10px rgba(30,25,15,.14)}
+  #c{--bg:#efe5cf;--panel:#fffdf7;--line:#c9b992;--text:#1c1814;--muted:#6b6048;--accent:#9c3d18;--tile:#f3e8cf;--sombra:0 3px 12px rgba(90,60,10,.14)}
+</style>
+</head>
+<body>
+<h1>Modo claro: elige cuál te ve mejor</h1>
+<p class="sub">Hoy (Porcelana) el fondo es #f6f2ec y las tarjetas #ffffff: casi no se distinguen. Estas 3 opciones separan el fondo de las tarjetas y oscurecen el texto gris.</p>
+<div class="fila">
+ <div class="op" id="a"><h2>A · Arena</h2><small>Cálido, el cambio más suave</small>
+  <div class="card"><span class="muted">Ventas de hoy</span><div class="num">$1.864.500</div><span class="ok">▲ 12 % vs ayer</span><div class="tile">Meta diaria: 78 %</div><span class="btn">Nueva venta</span></div>
+  <div class="card"><div class="fila2"><span>Gaseosa 1.5 L</span><b>$4.500</b></div><div class="fila2"><span>Agua 600 ml</span><b>$1.800</b></div><div class="fila2"><span class="muted">Stock bajo: 3</span><span class="muted">Ver</span></div></div></div>
+ <div class="op" id="b"><h2>B · Piedra</h2><small>Gris cálido, el de más contraste</small>
+  <div class="card"><span class="muted">Ventas de hoy</span><div class="num">$1.864.500</div><span class="ok">▲ 12 % vs ayer</span><div class="tile">Meta diaria: 78 %</div><span class="btn">Nueva venta</span></div>
+  <div class="card"><div class="fila2"><span>Gaseosa 1.5 L</span><b>$4.500</b></div><div class="fila2"><span>Agua 600 ml</span><b>$1.800</b></div><div class="fila2"><span class="muted">Stock bajo: 3</span><span class="muted">Ver</span></div></div></div>
+ <div class="op" id="c"><h2>C · Crema</h2><small>Más amarillento, cercano a tu marca dorada</small>
+  <div class="card"><span class="muted">Ventas de hoy</span><div class="num">$1.864.500</div><span class="ok">▲ 12 % vs ayer</span><div class="tile">Meta diaria: 78 %</div><span class="btn">Nueva venta</span></div>
+  <div class="card"><div class="fila2"><span>Gaseosa 1.5 L</span><b>$4.500</b></div><div class="fila2"><span>Agua 600 ml</span><b>$1.800</b></div><div class="fila2"><span class="muted">Stock bajo: 3</span><span class="muted">Ver</span></div></div></div>
+</div>
+</body>
+</html>
