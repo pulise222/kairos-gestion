@@ -2,268 +2,284 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Nivel · Manual de uso</title>
+<title>Servicios Kairos · Manual de uso</title>
 <style>
   @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
-  :root { --acento:#b0481f; --tinta:#1c1814; --suave:#665d50; --linea:#d9cfbd; --fondo:#f4eee3; }
+  :root { --acento:#a8181c; --tinta:#1f2733; --suave:#5c6470; --linea:#d9d2c6; --fondo:#f4efe6; }
   * { box-sizing: border-box; }
-  body { font: 11pt/1.55 "Segoe UI", system-ui, sans-serif; color: var(--tinta); margin: 0; counter-reset: fig; }
+  /* Letra grande a propósito: este manual lo va a leer también una persona que usa el computador por primera vez. */
+  body { font: 12.5pt/1.6 "Segoe UI", system-ui, sans-serif; color: var(--tinta); margin: 0; counter-reset: fig; }
   h1,h2,h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 700; line-height: 1.2; }
-  h1 { font-size: 24pt; color: var(--acento); margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid var(--acento); break-before: page; }
-  h2 { font-size: 15pt; margin: 8mm 0 2mm; break-after: avoid; }
-  h3 { font-size: 12pt; margin: 5mm 0 1mm; break-after: avoid; }
-  p { margin: 0 0 3mm; } ul,ol { margin: 0 0 3mm; padding-left: 6mm; } li { margin-bottom: 1.2mm; }
+  h1 { font-size: 25pt; color: var(--acento); margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 2px solid var(--acento); break-before: page; }
+  h2 { font-size: 16pt; margin: 8mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 3mm; } ul,ol { margin: 0 0 3mm; padding-left: 6.5mm; } li { margin-bottom: 1.6mm; }
   .portada { height: 255mm; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-  .portada img { width: 34mm; margin-bottom: 8mm; }
-  .portada h1 { border: 0; font-size: 44pt; margin: 0; break-before: avoid; letter-spacing: 1px; color: var(--tinta); }
-  .portada .sub { font-family: Georgia, serif; font-size: 17pt; color: var(--acento); margin: 3mm 0 14mm; }
-  .portada small { color: var(--suave); font-size: 10pt; }
+  .portada img { width: 70mm; margin-bottom: 10mm; }
+  .portada h1 { border: 0; font-size: 38pt; margin: 0; break-before: avoid; color: var(--tinta); }
+  .portada .sub { font-family: Georgia, serif; font-size: 18pt; color: var(--acento); margin: 3mm 0 14mm; }
+  .portada small { color: var(--suave); font-size: 10.5pt; }
   .indice { break-before: page; } .indice h1 { break-before: avoid; }
-  .indice ol { list-style: none; padding: 0; font-size: 12pt; } .indice li { padding: 2mm 0; border-bottom: 1px dotted var(--linea); }
+  .indice ol { list-style: none; padding: 0; font-size: 13pt; } .indice li { padding: 2.2mm 0; border-bottom: 1px dotted var(--linea); }
   figure { margin: 4mm 0 5mm; break-inside: avoid; }
   figure img { width: 100%; border: 1px solid var(--linea); border-radius: 3mm; display: block; }
-  figcaption { font-size: 9.5pt; color: var(--suave); margin-top: 1.5mm; text-align: center; }
+  figcaption { font-size: 10pt; color: var(--suave); margin-top: 1.5mm; text-align: center; }
   figcaption::before { counter-increment: fig; content: "Figura " counter(fig) ". "; font-weight: 700; color: var(--acento); }
-  .movil { display: flex; gap: 4mm; justify-content: center; } .movil figure { width: 31%; margin: 2mm 0; } .movil figure img { border-radius: 4mm; }
-  .nota, .ojo, .tip { padding: 3mm 4mm; border-radius: 2.5mm; margin: 3mm 0; break-inside: avoid; font-size: 10.5pt; }
-  .nota { background: #efe7d6; border-left: 4px solid #b8892a; } .ojo { background: #fbe5e5; border-left: 4px solid #d64545; } .tip { background: #e1f0e7; border-left: 4px solid #2e9e6b; }
-  table { border-collapse: collapse; width: 100%; margin: 3mm 0 5mm; font-size: 10.5pt; break-inside: avoid; }
+  .movil { text-align: center; } .movil figure { width: 52%; margin: 2mm auto; } .movil figure img { border-radius: 4mm; }
+  .nota, .ojo, .tip { padding: 3mm 4mm; border-radius: 2.5mm; margin: 3mm 0; break-inside: avoid; font-size: 11.5pt; }
+  .nota { background: #efe7d6; border-left: 4px solid #b8892a; } .ojo { background: #fbe5e5; border-left: 4px solid #c23434; } .tip { background: #e1f0e7; border-left: 4px solid #2e9e6b; }
+  table { border-collapse: collapse; width: 100%; margin: 3mm 0 5mm; font-size: 11.5pt; break-inside: avoid; }
   th,td { border: 1px solid var(--linea); padding: 2mm 3mm; text-align: left; vertical-align: top; } th { background: var(--fondo); }
-  .n { display: inline-grid; place-items: center; width: 5.2mm; height: 5.2mm; border-radius: 50%; background: #e11d48; color: #fff; font: 700 8.5pt system-ui; margin: 0 .5mm; vertical-align: 1px; }
-  kbd { border: 1px solid var(--linea); border-radius: 1.5mm; padding: 0 1.5mm; background: #fff; font-size: 9.5pt; }
+  kbd { border: 1px solid var(--linea); border-radius: 1.5mm; padding: 0 1.5mm; background: #fff; font-size: 10.5pt; }
 </style>
 </head>
 <body>
 
 <section class="portada">
   <img src="logo.png" alt="">
-  <h1>Nivel</h1>
-  <div class="sub">Manual de uso · Control de tienda</div>
-  <p>Ventas, inventario y ganancias de tu negocio,<br>explicado paso a paso y con pantallas.</p>
-  <small>Las capturas usan datos de ejemplo («Tienda Don Pepe»).<br>Edición: octubre de 2026</small>
+  <h1>Servicios Kairos</h1>
+  <div class="sub">Manual de uso del sistema</div>
+  <p>Cómo vender, cerrar la caja y cuidar la información,<br>explicado paso a paso y con pantallas.</p>
+  <small>Las capturas usan datos de ejemplo.<br>Edición: octubre de 2026</small>
 </section>
 
 <section class="indice">
   <h1>Contenido</h1>
   <ol>
-    <li>1. Antes de empezar: quién ve qué</li>
-    <li>2. Entrar, salir y moverse por el sistema</li>
-    <li>3. Vender</li>
-    <li>4. Ventas, anulaciones y devoluciones de clientes</li>
-    <li>5. Productos: crear, editar, fotos e importar desde Excel</li>
-    <li>6. Inventario: entradas, conteo físico y ajustes</li>
-    <li>7. Proveedores y devolución de mercancía</li>
-    <li>8. Panel: cómo va el negocio</li>
-    <li>9. Configuración</li>
-    <li>10. Copias de seguridad (¡importante!)</li>
-    <li>11. Tu cuenta, modo oscuro y uso en el celular</li>
-    <li>12. Rutina diaria sugerida y problemas frecuentes</li>
+    <li>1. Antes de empezar</li>
+    <li>2. Entrar al sistema y salir</li>
+    <li>3. Vender: la pantalla principal</li>
+    <li>4. Vender «por monto» (sin buscar el producto)</li>
+    <li>5. Si el producto no está: agregarlo en el momento</li>
+    <li>6. Cobrar y dar las vueltas</li>
+    <li>7. El cierre del día (cuadrar la caja)</li>
+    <li>8. Productos, secciones y proveedores</li>
+    <li>9. Inventario</li>
+    <li>10. Ventas anteriores, anular y devoluciones</li>
+    <li>11. El Panel y la meta (opcional)</li>
+    <li>12. Letra grande, modo oscuro y celular</li>
+    <li>13. Copias de seguridad y Excel de respaldo</li>
+    <li>14. Comentarios y sugerencias</li>
+    <li>15. Si algo no funciona</li>
   </ol>
 </section>
 
 <h1>1. Antes de empezar</h1>
-<p><b>Nivel</b> es el sistema donde registras tus ventas, controlas el inventario y ves cuánto estás ganando. Funciona en el computador del negocio y también en la tablet o el celular (conectados al WiFi del local).</p>
-<h2>Quién ve qué</h2>
+<p>Este sistema reemplaza al cuaderno de ventas. Hace por usted tres cosas: <b>anota cada venta</b>, <b>le dice cuánto debería haber en la caja</b> al final del día y <b>guarda toda la información</b> para que no se pierda.</p>
+<h2>Lo más importante, en cuatro frases</h2>
+<ul>
+  <li>No hay que saberse nada de memoria: <b>los pasos aparecen en pantalla</b> y este manual los repite con dibujos.</li>
+  <li>Es muy difícil dañar algo. Casi todo se puede corregir, y las ventas equivocadas se <b>anulan</b> (no se borran), así queda constancia.</li>
+  <li>Todas las vendedoras usan <b>el mismo usuario</b>, igual que comparten la caja.</li>
+  <li>Si se va el internet, <b>el sistema sigue funcionando</b>: guarda todo en este computador.</li>
+</ul>
+<div class="tip"><b>Consejo:</b> las primeras veces, haga también la venta en el cuaderno y compare. En una semana ya no lo necesitará.</div>
+<h2>Palabras que vamos a usar</h2>
 <table>
-  <tr><th>Rol</th><th>Qué puede hacer</th></tr>
-  <tr><td><b>Dueño</b></td><td>Todo: vender, ver todas las ventas, anular, hacer devoluciones, crear y editar productos (con costos y ganancias), inventario, proveedores, panel, configuración y copias de seguridad.</td></tr>
-  <tr><td><b>Vendedor/a</b></td><td>Vender, ver <i>sus</i> ventas, consultar productos (sin costos ni ganancias) y el estado del inventario.</td></tr>
+  <tr><th>Palabra</th><th>Qué significa</th></tr>
+  <tr><td>Sección</td><td>Cada grupo de productos: Pegantes, Soluciones, Tintes y marroquinera, Hilos, Agujas, Sesgos y elásticos, Materiales.</td></tr>
+  <tr><td>Por monto</td><td>Vender escribiendo solo cuánto vale y de qué sección es, sin buscar el producto.</td></tr>
+  <tr><td>Cierre del día</td><td>Contar el dinero de la caja al terminar y comprobar que coincide con lo vendido.</td></tr>
+  <tr><td>Vueltas</td><td>El dinero que se le devuelve al cliente. El sistema lo calcula.</td></tr>
+  <tr><td>Anular</td><td>Cancelar una venta equivocada. El sistema la deja marcada y devuelve el producto al inventario.</td></tr>
 </table>
-<p>Cada persona usa <b>su propio usuario</b>: así se sabe quién hizo cada venta. Los permisos los controla el servidor; aunque alguien intente entrar a una pantalla que no le corresponde, no podrá.</p>
-<div class="nota"><b>Tres ideas que lo explican todo.</b> (1) El <b>stock</b> de un producto solo cambia con ventas, entradas, devoluciones, ajustes y conteos: nunca se escribe a mano, así siempre se puede explicar por qué hay lo que hay. (2) Una venta ya hecha <b>nunca cambia</b>, aunque después cambie el precio del producto. (3) Todo el dinero se maneja en pesos enteros.</div>
 
-<h1>2. Entrar, salir y moverse</h1>
-<h2>Entrar</h2>
-<p>Abre <b>Nivel</b> (acceso directo del escritorio o la dirección que te dieron en el celular), escribe tu usuario y contraseña y pulsa <b>Entrar</b>.</p>
-<figure><img src="img/01-login.jpg"><figcaption>Pantalla de acceso. El ojito muestra u oculta la contraseña. (La frase «Demostración…» solo aparece en la versión de prueba; en el sistema real no está.)</figcaption></figure>
-<h2>El menú</h2>
-<p>A la izquierda (o abajo en el celular) están los módulos: Panel, Venta, Ventas, Productos, Inventario, Proveedores y Configuración. Arriba a la derecha, el estado de las copias, el modo claro/oscuro y tu nombre: <b>al tocarlo se abre el menú de tu cuenta</b> (cambiar mi contraseña, configuración y cerrar sesión).</p>
-<figure><img src="img/02-panel.jpg"><figcaption>Panel del dueño: <span class="n">1</span> períodos, <span class="n">2</span> modo claro/oscuro, <span class="n">3</span> cambiar mi contraseña, <span class="n">4</span> cerrar sesión.</figcaption></figure>
-<div class="tip">La sesión vence sola después de un tiempo sin uso. Si te pide entrar de nuevo, no pierdes nada de lo ya registrado.</div>
+<h1>2. Entrar al sistema y salir</h1>
+<ol>
+  <li>Encienda el computador y haga doble clic en el icono <b>Servicios Kairos</b> del escritorio. Se abre el navegador con la pantalla de acceso.</li>
+  <li>Escriba el <b>usuario</b> y la <b>clave</b> y pulse <b>Entrar</b>.</li>
+</ol>
+<figure><img src="img/01-entrar.png" alt=""><figcaption>Pantalla de acceso. El usuario y la clave los entrega quien instaló el sistema.</figcaption></figure>
+<div class="nota"><b>Guarde bien la clave</b> en un lugar que no esté a la vista de los clientes. Si la olvida, quien instaló el sistema puede restablecerla.</div>
+<p>Para salir, pulse el icono de la puerta (abajo en la barra de la izquierda). No hace falta salir entre ventas: puede dejar el sistema abierto todo el día.</p>
+<h2>El menú de la izquierda</h2>
+<table>
+  <tr><th>Opción</th><th>Para qué sirve</th></tr>
+  <tr><td>Venta (el carrito)</td><td>Registrar una venta. Es la pantalla con la que abre el sistema.</td></tr>
+  <tr><td>Ventas</td><td>Ver las ventas ya hechas, anular o devolver.</td></tr>
+  <tr><td>Cierre del día</td><td>Cuadrar la caja al final del día.</td></tr>
+  <tr><td>Productos</td><td>Crear y cambiar productos y precios.</td></tr>
+  <tr><td>Inventario</td><td>Ver cuánto queda de lo que sí se cuenta; registrar entradas.</td></tr>
+  <tr><td>Proveedores</td><td>Datos de quién le surte.</td></tr>
+  <tr><td>Panel</td><td>Resumen de cómo va el negocio.</td></tr>
+  <tr><td>Rueda dentada</td><td>Configuración (copias de seguridad, secciones, etc.).</td></tr>
+</table>
 
-<h1>3. Vender</h1>
-<p>La pantalla <b>Venta</b> es la caja: rápida y pensada para usarse todo el día.</p>
-<figure><img src="img/03-venta.jpg"><figcaption>Venta: <span class="n">1</span> búsqueda por nombre o código (también sirve el lector de código de barras), <span class="n">2</span> categorías, <span class="n">3</span> tarjeta de producto con su precio y stock.</figcaption></figure>
+<h1>3. Vender: la pantalla principal</h1>
+<p>Al entrar, el sistema abre directamente en <b>Venta</b>. La primera vez verá una guía de tres pasos; cuando la entienda, pulse <b>Entendido</b> y no volverá a salir.</p>
+<figure><img src="img/02-venta-guia.png" alt=""><figcaption>Pantalla de venta con la guía de tres pasos. A la derecha está el cuadro de la venta actual.</figcaption></figure>
 <h2>Paso a paso</h2>
 <ol>
-  <li><b>Busca</b> el producto escribiendo parte del nombre, el código o escaneando el código de barras. También puedes filtrar por categoría.</li>
-  <li><b>Toca la tarjeta</b> para agregarlo. Cada toque suma una unidad. Los productos agotados aparecen en gris con la etiqueta <i>Agotado</i>.</li>
-  <li>En el cuadro <b>Nueva venta</b> (a la derecha) ajusta cantidades con <b>+</b> y <b>−</b>, o quita un producto con el bote de basura.</li>
-  <li>En <b>Paga con</b> escribe cuánto te dieron, o toca un billete rápido <span class="n">2</span> (<i>Exacto</i>, 10.000, 20.000…). Verás las <b>Vueltas</b> al instante.</li>
-  <li>Pulsa <b>Confirmar venta</b> <span class="n">3</span>. El stock baja solo.</li>
+  <li><b>Busque el producto</b> de una de estas formas: escriba parte del nombre en el cuadro grande, toque una de las <b>secciones</b> (Pegantes, Hilos…) para ver solo esas, o toque el producto directamente en la lista.</li>
+  <li><b>Toque el producto</b>. Se agrega a la venta, en el cuadro de la derecha. Si el cliente lleva dos, vuelva a tocarlo o use los botones <b>+</b> y <b>−</b>.</li>
+  <li>Cuando termine de agregar, pase a cobrar (siguiente capítulo).</li>
 </ol>
-<figure><img src="img/04-venta-carrito.jpg"><figcaption>Venta armada: <span class="n">2</span> billetes rápidos, <span class="n">3</span> confirmar, <span class="n">4</span> cancelar toda la venta en curso.</figcaption></figure>
-<figure><img src="img/05-venta-vueltas.jpg"><figcaption>Con el pago escrito, el sistema muestra las vueltas y habilita <b>Confirmar venta</b>.</figcaption></figure>
-<figure><img src="img/06-venta-lista.jpg"><figcaption>Venta registrada: número de venta, total, con cuánto pagó el cliente y las vueltas. Con <b>Nueva venta</b> sigues con el siguiente cliente.</figcaption></figure>
-<div class="ojo"><b>No pulses dos veces «Confirmar venta».</b> Aunque lo hagas, el sistema registra una sola venta. Si el botón no responde de inmediato, espera un segundo.</div>
-<div class="nota">Si pides más unidades de las que hay, el sistema te avisa y no deja confirmar. El negocio puede permitir vender «con el stock en cero» desde Configuración. El botón <i>Recibo</i> muestra una vista del recibo; por ahora no se imprime.</div>
-<h2>Si el pago no alcanza</h2>
-<p>El botón <b>Confirmar venta</b> no se habilita mientras lo pagado sea menor que el total. No hay forma de cobrar de menos por error.</p>
+<figure><img src="img/03-venta-secciones.png" alt=""><figcaption>Al tocar una sección solo se ven sus productos.</figcaption></figure>
+<figure><img src="img/04-venta-carrito.png" alt=""><figcaption>Venta con varios productos. El total grande se actualiza solo.</figcaption></figure>
+<div class="tip"><b>Si se equivoca de producto:</b> pulse el icono de la <b>caneca</b> junto a la línea para quitarlo. Para empezar de cero, pulse <b>Cancelar venta</b>.</div>
+<p>El número con una bolita al lado del precio indica <b>cuántas unidades quedan</b>. Si un producto no tiene número es porque no se lleva su inventario (se explica en el capítulo 9). Si alguno aparece casi vacío, el sistema se lo avisa, pero <b>igual deja venderlo</b>: nunca va a impedir una venta por un error de conteo.</p>
 
-<h1>4. Ventas, anulaciones y devoluciones</h1>
-<p>En <b>Ventas</b> está el historial. El dueño ve todas las ventas; cada vendedor/a, solo las suyas.</p>
-<figure><img src="img/07-ventas.jpg"><figcaption>Historial: <span class="n">1</span> períodos (hoy, ayer, 7 días, mes…), <span class="n">2</span> estado (completadas o anuladas), <span class="n">3</span> toca una venta para ver el detalle.</figcaption></figure>
-<h2>Ver el detalle de una venta</h2>
-<figure><img src="img/08-venta-detalle.jpg"><figcaption>Detalle de la venta: productos, total, pago, vueltas y (solo para el dueño) la ganancia de esa venta. Abajo, <b>Registrar devolución</b> y <b>Anular esta venta</b>.</figcaption></figure>
-<p>Los precios y nombres que ves son <b>los de ese momento</b>: no cambian aunque luego cambie el precio del producto.</p>
-<h2>Anular una venta (solo el dueño)</h2>
-<p>Úsalo cuando la venta se registró <b>por error</b> (todo está mal). Pulsa <b>Anular esta venta</b>, escribe el motivo y confirma. El stock vuelve y la venta deja de contar en el Panel. Queda el rastro de quién la anuló y por qué.</p>
-<h2>Devolución de un cliente (solo el dueño)</h2>
-<p>Úsalo cuando el cliente devuelve <b>parte</b> o <b>todo</b> lo que compró.</p>
+<h1>4. Vender «por monto»</h1>
+<p>A veces el cliente pide «cinco mil de hilo» o el producto no tiene un precio fijo. Para eso existe <b>Por monto</b>: usted solo dice <b>de qué sección es</b> y <b>cuánto vale</b>. El sistema lo anota en esa sección para que el cierre y el Panel sepan cuánto se vendió de cada cosa.</p>
 <ol>
-  <li>Abre la venta y pulsa <b>Registrar devolución</b>.</li>
-  <li>Elige cuántas unidades de cada producto devuelve (con <b>+</b> y <b>−</b>). Nunca puedes devolver más de lo vendido.</li>
-  <li>Escribe el <b>motivo</b> (o toca uno de los sugeridos) e indica <b>cómo se le devuelve el dinero</b>: efectivo, transferencia o tarjeta.</li>
-  <li>El sistema calcula cuánto devolver: siempre <b>al precio al que se vendió</b>, no al de hoy.</li>
+  <li>Pulse <b>Por monto</b> (arriba, junto al buscador).</li>
+  <li>Elija la <b>sección</b>.</li>
+  <li>Escriba el valor. Si son varias cosas, <b>sume con el signo +</b>, igual que en la calculadora: <kbd>12000 + 9000</kbd>. El sistema muestra el resultado mientras escribe.</li>
+  <li>Pulse <b>Agregar a la venta</b>.</li>
 </ol>
-<figure><img src="img/09-devolucion.jpg"><figcaption>Devolución: unidades, motivo, medio de reembolso y valor a devolver. Si el producto vuelve <b>dañado</b>, se devuelve el dinero pero el producto no entra al inventario.</figcaption></figure>
-<div class="nota">Una venta con devoluciones <b>ya no se puede anular</b> (se duplicaría el stock); en cambio se sigue devolviendo lo que falte. El Panel descuenta las devoluciones el día en que se devolvió el dinero.</div>
+<figure><img src="img/05-por-monto.png" alt=""><figcaption>Venta por monto: el sistema suma 12.000 + 9.000 y muestra el total.</figcaption></figure>
+<div class="nota">Solo se aceptan números y el signo +. Si escribe letras, no aparecen. Los puntos de los miles son opcionales: <kbd>12.000</kbd> y <kbd>12000</kbd> valen lo mismo.</div>
+<div class="ojo"><b>Ojo con la ganancia:</b> como no sabemos cuánto costó eso que se vende por monto, el sistema <b>no cuenta ganancia</b> para esas líneas (solo cuentan como venta). Es lo más honesto: prefiere mostrar menos ganancia a inventarla.</div>
 
-<h1>5. Productos</h1>
-<p>Aquí está todo el catálogo. El dueño ve costos y márgenes; el vendedor, solo nombre, precio y stock.</p>
-<figure><img src="img/10-productos.jpg"><figcaption>Productos: <span class="n">1</span> crear uno nuevo, <span class="n">2</span> importar desde Excel, <span class="n">3</span> buscar, <span class="n">4</span> filtrar por estado del stock, <span class="n">5</span> editar un producto.</figcaption></figure>
+<h1>5. Si el producto no está</h1>
+<p>Si busca un producto y no aparece, el sistema ofrece <b>«Agregar uno nuevo»</b>. Ya trae escrito el nombre que buscó.</p>
+<figure><img src="img/08-producto-no-esta.png" alt=""><figcaption>Al buscar algo que no existe aparece el botón para agregarlo.</figcaption></figure>
+<ol>
+  <li>Pulse <b>Agregar «…» como producto nuevo</b>.</li>
+  <li>Revise el nombre, escriba el <b>precio</b> y elija la <b>sección</b>.</li>
+  <li>Pulse <b>Guardar y agregar</b>. El producto queda guardado para siempre y ya está en la venta.</li>
+</ol>
+<figure><img src="img/09-producto-nuevo.png" alt=""><figcaption>Formulario rápido: solo nombre, precio y sección.</figcaption></figure>
+<div class="tip">Si no sabe el costo, déjelo para después. En <b>Productos</b> el sistema le avisa «Falta el costo» para que lo complete cuando pueda; con el costo se calcula la ganancia real.</div>
+
+<h1>6. Cobrar y dar las vueltas</h1>
+<ol>
+  <li>En el cuadro de la derecha, en <b>Paga con</b>, escriba cuánto entregó el cliente, o toque un billete rápido (10.000, 20.000, 50.000, 100.000). Si pagó exacto, toque <b>Exacto</b>.</li>
+  <li>El sistema muestra las <b>Vueltas</b> en verde. Entréguelas.</li>
+  <li>Pulse <b>Confirmar venta</b>.</li>
+</ol>
+<figure><img src="img/06-cobro.png" alt=""><figcaption>El cliente pagó con 100.000: el sistema calcula las vueltas.</figcaption></figure>
+<p>Aparece <b>«Venta registrada»</b> con el total y las vueltas. Pulse <b>Nueva venta</b> para seguir con el siguiente cliente.</p>
+<figure><img src="img/07-venta-registrada.png" alt=""><figcaption>Confirmación de la venta. Ya quedó anotada.</figcaption></figure>
+<div class="nota">Por ahora el sistema <b>no imprime recibos</b>, tal como se acordó.</div>
+
+<h1>7. El cierre del día</h1>
+<p>Al terminar la jornada se comprueba que el dinero de la caja coincida con lo vendido. Es lo mismo que se hace hoy en el cuaderno, pero el sistema hace la cuenta.</p>
+<figure><img src="img/10-cierre.png" alt=""><figcaption>Arriba: lo vendido hoy, por forma de pago y por sección.</figcaption></figure>
+<h2>Cómo cerrar la caja</h2>
+<ol>
+  <li>Entre a <b>Cierre del día</b>.</li>
+  <li>En <b>«¿Con cuánto dinero abrieron la caja?»</b> escriba la base con la que empezó el día (si no dejaron base, escriba 0).</li>
+  <li>En <b>«¿Cuánto efectivo hay AHORA en la caja?»</b> cuente billetes y monedas y escriba el total. <b>No cuente</b> transferencias ni tarjeta.</li>
+  <li>El sistema compara y dice una de tres cosas:
+    <ul>
+      <li><b>¡Cuadra!</b> (en verde): todo está bien.</li>
+      <li><b>Faltan $…</b> (en rojo): hay menos dinero del que debería. Revise si falta anotar una venta, si hubo un gasto o si se dio mal una vuelta.</li>
+      <li><b>Sobran $…</b>: hay más de lo esperado. Suele ser una venta que no se anotó o una vuelta que no se entregó.</li>
+    </ul>
+  </li>
+  <li>Si quiere, escriba una <b>nota</b> («se pagó el almuerzo de la caja»). Luego pulse <b>Guardar cierre del día</b>.</li>
+</ol>
+<figure><img src="img/10b-cierre-cuadre.png" alt=""><figcaption>Ejemplo: debería haber 258.000 y hay 256.500, entonces «Faltan $ 1.500».</figcaption></figure>
+<div class="tip"><b>Si se equivoca</b> al cerrar, no pasa nada: vuelva a entrar al mismo día, corrija los valores y guarde otra vez. Con las flechas de arriba puede revisar los días anteriores.</div>
+<div class="nota">Esta pantalla la ve el usuario principal del sistema.</div>
+
+<h1>8. Productos, secciones y proveedores</h1>
+<p>Usted mismo puede agregar y cambiar todo; no depende de nadie. En <b>Productos</b> están todos los artículos con su precio y su sección. Use el filtro de categorías para ver solo una sección.</p>
+<figure><img src="img/11-productos.png" alt=""><figcaption>Lista de productos filtrada por la sección «Pegantes».</figcaption></figure>
 <h2>Crear un producto</h2>
-<p>Pulsa <b>Nuevo producto</b>. Lo básico es el nombre, la categoría, el costo y el precio. Todo lo demás es opcional:</p>
-<table>
-  <tr><th>Campo</th><th>Cómo funciona</th></tr>
-  <tr><td>Nombre</td><td>Como quieres verlo en Venta. Ej. «Agua con gas 600 ml».</td></tr>
-  <tr><td>Código</td><td>Opcional. Si lo dejas vacío, el sistema le pone el siguiente número (0001, 0002…). Puedes escribir el tuyo (ej. <b>AGUAGAS</b>) o escanear el código de barras. No admite espacios y no puede repetirse (da igual mayúsculas o minúsculas).</td></tr>
-  <tr><td>Descripción</td><td>Opcional. Sirve para distinguir presentaciones y también para buscar.</td></tr>
-  <tr><td>Categoría</td><td>Elige una o crea una nueva ahí mismo con <b>+ Nueva categoría</b>.</td></tr>
-  <tr><td>Proveedor</td><td>Opcional. Sirve para saber a quién pedirle cuando se acabe.</td></tr>
-  <tr><td>Costo y precio</td><td>El sistema muestra al instante cuánto ganas por unidad y tu margen. Si vendes por debajo del costo, te avisa en rojo.</td></tr>
-  <tr><td>Stock inicial y mínimo</td><td>Lo que tienes hoy y el nivel en que quieres que te avise («stock bajo»).</td></tr>
-  <tr><td>Foto</td><td>Opcional. Sube una foto del producto; el sistema la reduce sola para que no pese.</td></tr>
-</table>
-<figure><img src="img/11-producto-nuevo.jpg"><figcaption>Formulario de producto: <span class="n">1</span> código opcional, <span class="n">2</span> descripción, <span class="n">3</span> crear una categoría nueva sin salir.</figcaption></figure>
-<figure><img src="img/12-producto-foto.jpg"><figcaption>Costo, precio y margen en vivo, stock inicial y mínimo, y la foto del producto con vista previa. <span class="n">2</span> <b>Crear producto</b> guarda todo.</figcaption></figure>
-<h2>Editar, desactivar y precios</h2>
-<ul>
-  <li><b>Editar:</b> toca el lápiz de la tarjeta. Puedes cambiar <i>todo</i>: nombre, código, descripción, categoría, proveedor, costo, precio, stock mínimo y foto (con <b>Cambiar foto</b> o <b>Quitar</b>).</li>
-  <li><b>Cambiar un precio o costo:</b> queda en el historial. Las ventas anteriores no cambian.</li>
-  <li><b>El stock no se edita aquí:</b> cambia con ventas, entradas, devoluciones y conteos.</li>
-  <li><b>Desactivar:</b> apaga <i>Producto activo</i>. Deja de aparecer en Venta, pero su historial se conserva (lo encuentras en el filtro <i>Inactivos</i>).</li>
-</ul>
-<h2>Importar productos desde Excel o CSV (solo dueño)</h2>
-<p>Útil para cargar de una vez todo el catálogo. Pulsa <b>Importar</b> y sigue los tres pasos:</p>
 <ol>
-  <li><b>Descarga la plantilla</b> y llénala (una fila por producto; trae un ejemplo y las instrucciones). Obligatorios: nombre, categoría, costo y precio.</li>
-  <li><b>Sube tu archivo</b> (.xlsx o .csv).</li>
-  <li><b>Revisa la vista previa</b>: nada se guarda todavía. Si todo está bien, pulsa <b>Importar N productos</b>.</li>
+  <li>Entre a <b>Productos</b> y pulse <b>Nuevo producto</b>.</li>
+  <li>Escriba el <b>nombre</b> (por ejemplo «Pegante Fénix 1 L»).</li>
+  <li>Elija la <b>sección</b> y, si quiere, el <b>proveedor</b>. Si la sección no existe, pulse <b>+ Nueva categoría</b>.</li>
+  <li>Escriba el <b>costo</b> (lo que le cuesta a usted) y el <b>precio de venta</b>. El sistema calcula la ganancia por unidad.</li>
+  <li>Decida si quiere <b>llevar inventario</b> (ver el capítulo 9) y pulse <b>Crear producto</b>.</li>
 </ol>
-<figure><img src="img/28-importar-vista.jpg"><figcaption>Vista previa de una importación correcta: cuántos productos se crean y cuántos se actualizan, las categorías y proveedores nuevos, y cada fila marcada como «Nuevo» o «Actualiza».</figcaption></figure>
-<p>Si el archivo tiene errores, el sistema te dice <b>en qué fila y en qué columna</b> y no deja importar hasta corregirlos (así nunca queda un catálogo a medias).</p>
-<figure><img src="img/29-importar-errores.jpg"><figcaption>Importación con errores: cada uno indica la fila y la columna. Corrige el archivo y súbelo de nuevo.</figcaption></figure>
-<figure><img src="img/30-productos-importados.jpg"><figcaption>Resultado: los productos ya están en el catálogo, con su stock inicial.</figcaption></figure>
-<div class="nota"><b>Productos que ya existen:</b> si el código del archivo coincide con uno existente, ese producto se <b>actualiza</b> (nombre, descripción, categoría, proveedor, costo, precio y mínimo). Su <b>stock no se toca</b>: para eso usa el conteo físico. Las categorías y proveedores que no existan se crean solos.</div>
+<figure><img src="img/12-producto-formulario.png" alt=""><figcaption>Formulario de nuevo producto. Lo único obligatorio es nombre, sección y precio.</figcaption></figure>
+<p>El <b>código</b> es opcional: si lo deja vacío, el sistema le pone el siguiente número (0001, 0002…).</p>
+<h2>Cambiar un precio</h2>
+<p>Toque el producto en la lista, cambie el precio y guarde. Las ventas anteriores <b>no se alteran</b>: cada venta recuerda el precio al que se hizo.</p>
+<h2>Proveedores</h2>
+<p>En <b>Proveedores</b> puede crear cada proveedor (nombre, teléfono) y ver qué productos le compra a cada uno. Se arman a su gusto: no vienen proveedores puestos, para no equivocarnos con datos que no conocemos.</p>
+<h2>Secciones</h2>
+<p>En <b>Configuración → Categorías</b> puede cambiar los nombres de las siete secciones, agregar nuevas o quitar las que no use.</p>
 
-<h1>6. Inventario</h1>
-<p>El inventario muestra el estado del stock, lo más urgente primero, y el libro de movimientos.</p>
-<figure><img src="img/13-inventario.jpg"><figcaption>Inventario: <span class="n">1</span> conteo físico, <span class="n">2</span> entrada de mercancía, <span class="n">3</span> libro de movimientos, <span class="n">4</span> entrada rápida de un producto.</figcaption></figure>
-<h2>Entrada de mercancía</h2>
-<p>Cuando llega un pedido: pulsa <b>Entrada de mercancía</b>, elige el proveedor y agrega los productos con su cantidad y su <b>costo</b> real. Al registrar, el stock sube y, si el costo cambió, el producto se actualiza (queda el rastro).</p>
-<figure><img src="img/14-entrada.jpg"><figcaption>Registrar la entrada de un pedido.</figcaption></figure>
+<h1>9. Inventario</h1>
+<p>El inventario dice cuántas unidades quedan de cada producto. Funciona así: cada vez que se vende, baja; cada vez que llega mercancía, sube. Siempre se puede saber por qué cambió un número.</p>
+<figure><img src="img/13-inventario.png" alt=""><figcaption>Inventario: cuánto hay de cada producto y cuáles se están acabando.</figcaption></figure>
+<h2>Productos que sí y que no llevan inventario</h2>
+<p>Al crear un producto verá la opción <b>«Llevar inventario»</b>. Apagada es lo normal para cosas que se venden por monto o que no se cuentan. Esos productos <b>no aparecen en Inventario</b> y nunca se bloquea su venta.</p>
+<h2>Cuando llega mercancía</h2>
+<ol>
+  <li>Entre a <b>Inventario</b> y pulse <b>Entrada de mercancía</b>.</li>
+  <li>Elija el producto, escriba cuántas unidades llegaron y el costo. Guarde.</li>
+</ol>
 <h2>Conteo físico</h2>
-<p>Sirve para comparar lo que <b>hay</b> en los estantes con lo que dice el sistema.</p>
+<p>De vez en cuando conviene contar lo que hay en el estante y compararlo con el sistema. En Inventario, la opción <b>Conteo físico</b> le deja escribir lo contado y ajusta las diferencias dejando constancia.</p>
+
+<h1>10. Ventas anteriores, anular y devoluciones</h1>
+<p>En <b>Ventas</b> está la lista de todo lo vendido, con fecha, hora y total. Toque una venta para ver su detalle.</p>
+<h2>Anular una venta equivocada</h2>
 <ol>
-  <li>Pulsa <b>Conteo físico</b>. Aparecen todos los productos con lo que dice el sistema.</li>
-  <li>Escribe lo que <b>contaste</b> en cada uno. Los que dejes vacíos <b>no se tocan</b>. Puedes buscar o filtrar por categoría.</li>
-  <li>Pulsa <b>Revisar</b>: verás solo los productos con diferencia («antes → contado»).</li>
-  <li>Confirma con <b>Aplicar N cambios</b>. Cada diferencia queda en el historial con el motivo.</li>
+  <li>Abra la venta y pulse <b>Anular esta venta</b>.</li>
+  <li>Escriba el <b>motivo</b> (es obligatorio; sirve para saber qué pasó) y confirme.</li>
 </ol>
-<figure><img src="img/15-conteo.jpg"><figcaption>Conteo: la diferencia aparece al lado de cada producto. Solo se aceptan números enteros.</figcaption></figure>
-<figure><img src="img/16-conteo-revisar.jpg"><figcaption>Revisión final antes de aplicar: nada cambia hasta que confirmes.</figcaption></figure>
-<div class="nota">Si se vende mientras cuentas, manda lo que contaste. Lo ideal es contar con la caja en pausa, o anotar las ventas hechas durante el conteo.</div>
-<h2>Ajuste de un producto</h2>
-<p>Con <b>Ajustar</b> (en la tarjeta del producto) registras una pérdida, un daño, un vencimiento o un sobrante, siempre con un motivo.</p>
+<p>La venta queda marcada como anulada, deja de sumar en el cierre y los productos con inventario vuelven a contarse.</p>
+<h2>Devolución de un cliente</h2>
+<p>Si el cliente devuelve parte de lo que compró, abra la venta y use la opción de <b>devolución</b>: elija qué y cuántas unidades regresan. El sistema ajusta el total y el inventario.</p>
+<div class="ojo"><b>Importante:</b> no existe «borrar una venta». Anular es la forma correcta; así el dinero y el inventario siempre cuadran.</div>
 
-<h1>7. Proveedores</h1>
-<p>Muestra a quién le compras, qué productos te surte y <b>qué conviene pedirle</b> (lo que está bajo el mínimo).</p>
-<figure><img src="img/17-proveedores.jpg"><figcaption>Proveedores: <span class="n">1</span> agregar uno nuevo, <span class="n">2</span> filtro «Por pedirles» con los que tienen productos por agotarse.</figcaption></figure>
-<figure><img src="img/18-proveedor-detalle.jpg"><figcaption>Ficha del proveedor: contacto, notas, sus compras y lo que conviene pedirle. <span class="n">1</span> <b>Devolver mercancía</b>.</figcaption></figure>
-<h2>Devolver mercancía a un proveedor</h2>
-<p>Cuando el proveedor trajo de más, o la mercancía llegó dañada, equivocada o vencida:</p>
-<ol>
-  <li>En la ficha del proveedor pulsa <b>Devolver mercancía</b>.</li>
-  <li>Elige la <b>compra de origen</b> (opcional) y los productos con sus cantidades. El sistema no deja devolver más de lo comprado ni más de lo que hay en el inventario.</li>
-  <li>Indica el <b>motivo</b> y cómo se resuelve: <i>por definir</i>, <i>nota crédito</i>, <i>reembolso</i> o <i>reposición</i>.</li>
-</ol>
-<p>El stock baja, y queda registrado cuánto se devolvió (valorado al costo) en la pestaña <b>Devoluciones</b> del proveedor.</p>
-
-<h1>8. Panel</h1>
-<p>Solo para el dueño. Es la primera pantalla al entrar (Figura 2) y responde: «¿cómo va el negocio?».</p>
+<h1>11. El Panel y la meta</h1>
+<p>El <b>Panel</b> es el resumen del negocio: cuánto se vendió, cuánto se ganó, cuántas ventas hubo, cuáles son los productos más vendidos y cuáles se están acabando. Puede mirar hoy, ayer, los últimos 7 o 30 días, el mes o un rango que usted escoja.</p>
+<figure><img src="img/14-panel.png" alt=""><figcaption>Panel con el resumen del día y la tarjeta de meta.</figcaption></figure>
+<h2>La meta es opcional</h2>
+<p>En la tarjeta <b>Meta del día</b> puede fijar cuánto quiere vender por día y ver su avance.</p>
 <ul>
-  <li><b>Tarjetas:</b> ventas, ganancia, número de ventas y ticket promedio, comparados con el período anterior (flechas verdes o rojas).</li>
-  <li><b>Períodos:</b> hoy, ayer, 7 días, 30 días, este mes, mes pasado o fechas a tu medida (<i>Personalizado</i>).</li>
-  <li><b>Gráficas:</b> ventas o ganancia por día, avance hacia la <b>meta diaria</b>, productos más vendidos y ventas por categoría.</li>
-  <li><b>Stock bajo</b> y <b>últimas ventas</b>, para actuar rápido.</li>
+  <li><b>Definir una meta:</b> pulse el botón, escriba el valor y <b>Guardar</b>.</li>
+  <li><b>Cambiarla:</b> pulse <b>Cambiar</b> junto a la meta.</li>
+  <li><b>No usarla:</b> pulse <b>Cambiar</b> y luego <b>Quitar meta</b>. La tarjeta queda tranquila, sin presionar.</li>
 </ul>
-<div class="nota">Las cifras ya <b>descuentan las devoluciones</b> y no cuentan las ventas anuladas. Los días se cuentan en la hora de Colombia.</div>
 
-<h1>9. Configuración</h1>
-<p>Solo el dueño la ve. Adapta el sistema al negocio.</p>
-<figure><img src="img/19-config-negocio.jpg"><figcaption>Negocio: nombre, NIT, dirección, teléfono, meta diaria y si se permite vender con el stock en cero.</figcaption></figure>
-<h2>Categorías</h2>
-<p>Crea, renombra, cambia el color o desactiva categorías. Una categoría desactivada no se ofrece al crear productos nuevos (los que ya la usan la conservan). Nunca se borran, para que el historial siempre se entienda. No puede haber dos con el mismo nombre (aunque cambien las mayúsculas).</p>
-<figure><img src="img/20-config-categorias.jpg"><figcaption>Categorías: nombre, color y activa/desactivada.</figcaption></figure>
-<h2>Usuarios</h2>
-<p>Crea usuarios (dueño o vendedor), desactívalos o restablece su contraseña. Un usuario desactivado pierde el acceso al instante. El sistema nunca deja al negocio sin dueño.</p>
-<figure><img src="img/21-config-usuarios.jpg"><figcaption>Usuarios del negocio y su estado.</figcaption></figure>
-<h2>Apariencia</h2>
-<p>Elige el color principal, el patrón del fondo y su intensidad. Los cambios se ven al instante y se guardan.</p>
-<figure><img src="img/22-config-apariencia.jpg"><figcaption>Apariencia: color de acento y patrón de fondo.</figcaption></figure>
-
-<h1>10. Copias de seguridad</h1>
-<p>Es lo más importante para dormir tranquilo: si el computador se daña, con una copia recuperas todo (productos, ventas, inventario, usuarios, ajustes y fotos).</p>
-<figure><img src="img/31-copias-antes.jpg"><figcaption>Copias de seguridad: el semáforo indica si hay una copia reciente. <span class="n">1</span> <b>Hacer copia ahora</b>.</figcaption></figure>
-<ul>
-  <li><b>Automática:</b> el sistema hace una copia <b>cada 24 horas</b> mientras el computador esté encendido y guarda las últimas 30.</li>
-  <li><b>Segunda carpeta:</b> una copia en el mismo disco se pierde si el disco se daña. Quien instala el sistema puede configurar otra carpeta (una USB u otro disco) donde se repite cada copia.</li>
-  <li><b>Reporte semanal por correo (opcional):</b> cada 7 días llega un Excel con las ventas y el inventario, y la copia de seguridad adjunta, así tienes una copia fuera del computador.</li>
-</ul>
-<figure><img src="img/32-copias.jpg"><figcaption>Lista de copias: <span class="n">1</span> <b>Descargar</b> (guárdala en una USB), <span class="n">2</span> <b>Restaurar</b>.</figcaption></figure>
-<h2>Restaurar una copia</h2>
-<div class="ojo"><b>Cuidado:</b> restaurar deja el sistema <b>como estaba cuando se hizo esa copia</b>. Todo lo registrado después (ventas, entradas, cambios) se pierde. Hazlo solo si es necesario y, si puedes, con ayuda de quien instaló el sistema.</div>
-<p>Pulsa <b>Restaurar</b> en la copia elegida y escribe la palabra <b>RESTAURAR</b> para confirmar. Antes de reemplazar nada, el sistema guarda una copia «Antes de restaurar» del estado actual, por si te arrepientes.</p>
-<figure><img src="img/33-restaurar.jpg"><figcaption>Confirmación de restauración: hay que escribir la palabra para continuar.</figcaption></figure>
-
-<h1>11. Tu cuenta, modo oscuro y celular</h1>
-<h2>Cambiar mi contraseña</h2>
-<p>Toca el ícono de la <b>llave</b>. Escribe tu contraseña actual, la nueva (mínimo 8 caracteres; una frase larga es mejor que una clave corta) y repítela. El medidor te dice qué tan fuerte es.</p>
-<figure><img src="img/23-mi-cuenta.jpg"><figcaption>Cambiar mi contraseña.</figcaption></figure>
+<h1>12. Letra grande, modo oscuro y celular</h1>
+<h2>Cambiar el tamaño de la letra</h2>
+<p>Arriba a la derecha hay un botón <b>«Aa»</b> con el tamaño actual (Normal, Grande, Muy grande). Cada vez que lo toca pasa al siguiente tamaño. <b>El sistema recuerda su elección</b> en ese computador.</p>
 <h2>Modo claro y oscuro</h2>
-<p>El botón de la luna/sol (arriba a la derecha) alterna entre modo claro y oscuro; el sistema recuerda tu elección. El oscuro es cómodo en lugares con poca luz.</p>
-<figure><img src="img/24-modo-oscuro.jpg"><figcaption>La pantalla de Venta en modo oscuro.</figcaption></figure>
-<h2>En el celular y la tablet</h2>
-<p>Abre la dirección del sistema en el navegador (te la da quien lo instaló; el celular debe estar en el WiFi del negocio). El menú pasa a una barra inferior y la venta se arma igual que en el computador.</p>
-<div class="movil">
-  <figure><img src="img/25-movil-venta.jpg"><figcaption>Venta</figcaption></figure>
-  <figure><img src="img/26-movil-productos.jpg"><figcaption>Productos</figcaption></figure>
-  <figure><img src="img/27-movil-panel.jpg"><figcaption>Panel</figcaption></figure>
-</div>
-<div class="tip"><b>Ícono en la pantalla de inicio:</b> en Android (Chrome) menú ⋮ → <i>Agregar a la pantalla de inicio</i>; en iPhone (Safari) <i>Compartir</i> → <i>Agregar a inicio</i>. Se abre a pantalla completa, como una app.</div>
+<p>El botón de la <b>luna</b> (o el sol) cambia entre fondo claro y fondo oscuro. Use el que sea más cómodo para sus ojos.</p>
+<h2>En el celular</h2>
+<p>El sistema también se ve bien en el celular o la tablet: el menú pasa abajo, en una barra con iconos.</p>
+<div class="movil"><figure><img src="img/17-celular.png" alt=""><figcaption>Pantalla de venta en el celular.</figcaption></figure></div>
+<div class="nota">Para usarlo desde el celular, este debe estar conectado a la misma red WiFi que el computador de la tienda. Quien instala el sistema le indica la dirección que debe abrir.</div>
 
-<h1>12. Rutina diaria y problemas frecuentes</h1>
-<h2>Rutina sugerida</h2>
+<h1>13. Copias de seguridad y Excel de respaldo</h1>
+<p>Toda la información está en este computador. Si el computador se daña, sin una copia fuera de él <b>se perdería todo</b>. Por eso el sistema se protege de tres maneras:</p>
 <table>
-  <tr><th>Cuándo</th><th>Qué hacer</th></tr>
-  <tr><td>Al abrir</td><td>Abrir Nivel. Revisar en <b>Inventario</b> qué está agotado o bajo y si llegaron pedidos (registrarlos como <i>Entrada</i>).</td></tr>
-  <tr><td>Durante el día</td><td>Registrar cada venta en <b>Venta</b>. Si hay un error, anular o devolver desde <b>Ventas</b> (el dueño).</td></tr>
-  <tr><td>Al cerrar</td><td>Mirar el <b>Panel</b> (ventas y ganancia del día) y confirmar que el semáforo de copias esté <b>verde</b>.</td></tr>
-  <tr><td>Cada mes (o cuando quieras)</td><td>Un <b>conteo físico</b> para cuadrar el inventario. Descargar una copia y guardarla fuera del computador.</td></tr>
+  <tr><th>Qué</th><th>Cada cuánto</th><th>Para qué</th></tr>
+  <tr><td>Copia automática</td><td>Cada 24 horas, guarda las últimas 30</td><td>Recuperar todo si algo se daña.</td></tr>
+  <tr><td>Excel de respaldo</td><td>Cada día, en una carpeta visible</td><td>Poder ver ventas, cierres y precios aunque el sistema no abra.</td></tr>
+  <tr><td>Segunda copia (USB o nube)</td><td>Junto con cada copia</td><td>Que la copia quede <b>fuera</b> del computador.</td></tr>
 </table>
-<h2>Problemas frecuentes</h2>
+<figure><img src="img/18-copias.png" alt=""><figcaption>Configuración → Copias de seguridad. El semáforo en verde indica que todo está al día.</figcaption></figure>
+<h2>Qué debe hacer usted</h2>
+<ul>
+  <li>Mirar de vez en cuando el aviso <b>«Copia al día»</b> (arriba, junto al buscador). Si está en verde, no hay nada que hacer.</li>
+  <li>Una vez por semana, entrar a <b>Configuración → Copias de seguridad</b> y pulsar <b>Descargar Excel</b> para guardar el archivo donde prefiera (por ejemplo, enviarlo a su correo).</li>
+  <li>Si el aviso aparece en amarillo o rojo, avise a quien instaló el sistema.</li>
+</ul>
+<div class="tip"><b>Sobre el cargador:</b> puede dejar el portátil conectado durante el día; los portátiles actuales dejan de cargar cuando la batería está llena. Lo que sí conviene es no dejar que se apague de golpe en medio de la jornada. Si el portátil se queda sin WiFi, el sistema sigue funcionando igual.</div>
+
+<h1>14. Comentarios y sugerencias</h1>
+<p>Durante la semana de prueba nos interesa mucho su opinión: qué le parece fácil, qué le confunde, qué le falta. Arriba, junto al buscador, está el botón <b>Comentario</b>.</p>
+<ol>
+  <li>Pulse <b>Comentario</b>.</li>
+  <li>Escriba lo que piensa, con sus palabras. Por ejemplo: «No encuentro el hilo negro».</li>
+  <li>Pulse <b>Enviar</b>. El sistema guarda también en qué pantalla estaba, para entender mejor.</li>
+</ol>
+<figure><img src="img/15-comentario.png" alt=""><figcaption>Ventana para escribir un comentario.</figcaption></figure>
+<p>Todo lo escrito se puede leer en <b>Configuración → Comentarios</b> y descargar en un solo archivo.</p>
+<div class="tip">No se preocupe por escribir «bonito» ni por quejarse: <b>cada comentario ayuda a dejar el sistema a su medida.</b></div>
+
+<h1>15. Si algo no funciona</h1>
 <table>
   <tr><th>Qué pasa</th><th>Qué hacer</th></tr>
-  <tr><td>«No se pudo conectar con el servidor»</td><td>El computador del negocio está apagado o se cerró la ventana <i>Nivel · Servidor</i>. Abre «Nivel» de nuevo.</td></tr>
-  <tr><td>«Sesión vencida»</td><td>Vuelve a entrar con tu usuario. No se pierde nada.</td></tr>
-  <tr><td>Un producto no aparece en Venta</td><td>Puede estar <b>desactivado</b> (mira el filtro <i>Inactivos</i> en Productos) o estar buscando con otro nombre. También puede estar agotado.</td></tr>
-  <tr><td>No me deja confirmar la venta</td><td>El pago es menor que el total, o no alcanza el stock de algún producto.</td></tr>
-  <tr><td>«Ya existe un producto con ese código»</td><td>Cada código es único (aunque cambien mayúsculas). Usa otro, o déjalo vacío para que el sistema lo asigne.</td></tr>
-  <tr><td>Olvidé mi contraseña</td><td>Pídele al dueño que la restablezca en <i>Configuración → Usuarios</i>. Si es el dueño quien la olvidó, avisa a quien instaló el sistema.</td></tr>
-  <tr><td>Las cifras no me cuadran</td><td>Anota la hora y el producto y avisa a quien instaló el sistema: hay una revisión automática que comprueba que el stock y las ventas cuadren.</td></tr>
+  <tr><td>La página no abre</td><td>Cierre la ventana del navegador y vuelva a abrirla con el icono Servicios Kairos del escritorio. Si sigue igual, reinicie el computador.</td></tr>
+  <tr><td>No recuerdo la clave</td><td>Avise a quien instaló el sistema; puede restablecerla sin perder datos.</td></tr>
+  <tr><td>Se fue el internet</td><td>No pasa nada: el sistema sigue vendiendo normal. Solo el envío de correos queda en pausa.</td></tr>
+  <tr><td>Anoté una venta mal</td><td>Entre a Ventas, abra esa venta, pulse Anular, escriba el motivo y haga la venta de nuevo, correcta.</td></tr>
+  <tr><td>La caja no cuadra</td><td>Revise en Ventas si falta anotar alguna venta del día, si hubo gastos o vueltas mal dadas. Escriba la explicación en la nota del cierre.</td></tr>
+  <tr><td>La letra se ve muy pequeña</td><td>Pulse el botón «Aa» de arriba hasta que se vea cómoda.</td></tr>
+  <tr><td>Un producto no aparece al buscarlo</td><td>Pruebe con otra parte del nombre o toque la sección. Si no existe, use «Agregar uno nuevo».</td></tr>
+  <tr><td>Sale un mensaje de error que no entiendo</td><td>Tome una foto de la pantalla con el celular y envíela a quien instaló el sistema.</td></tr>
 </table>
-<div class="tip">¿Dudas o ideas para mejorar el sistema? Anótalas: el sistema está hecho para adaptarse al negocio.</div>
+<div class="nota"><b>Cualquier duda:</b> use el botón <b>Comentario</b> o escriba directamente a quien instaló el sistema. Ninguna pregunta es tonta; para eso estamos.</div>
 
 </body>
 </html>

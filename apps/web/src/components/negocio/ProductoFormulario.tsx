@@ -179,7 +179,7 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
       }
     >
       <form id="form-producto" onSubmit={guardar} noValidate className="space-y-4">
-        <Campo etiqueta="Nombre del producto" autoFocus placeholder="Ej. Gaseosa 1.5 L" error={errors.nombre?.message} {...register('nombre')} />
+        <Campo etiqueta="Nombre del producto" autoFocus placeholder="Ej. Pegante Fénix 1 L" error={errors.nombre?.message} {...register('nombre')} />
 
         <div>
           <Campo
@@ -194,7 +194,7 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
 
         <div>
           <label htmlFor="descripcion-producto" className="mb-1.5 block text-sm font-medium text-muted">Descripción (opcional)</label>
-          <textarea id="descripcion-producto" rows={2} maxLength={500} placeholder="Ej. Botella plástica de 600 ml, sin gas" {...register('descripcion')}
+          <textarea id="descripcion-producto" rows={2} maxLength={500} placeholder="Ej. Botella de 1 litro, uso en calzado" {...register('descripcion')}
             className={`w-full resize-y rounded-xl border bg-bg/70 px-4 py-3 text-base text-ink outline-none transition placeholder:text-muted/60 focus:border-accent ${errors.descripcion ? 'border-bad' : 'border-line'}`} />
           {errors.descripcion && <p className="mt-1.5 text-sm text-bad">{errors.descripcion.message}</p>}
         </div>

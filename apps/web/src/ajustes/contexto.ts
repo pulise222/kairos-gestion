@@ -8,7 +8,7 @@ import type { Copia } from '../lib/copias'
   Cada campo tiene un valor por defecto: si algo se corrompe, se vuelve a ese valor en vez de romper la app.
 */
 export const esquemaAjustes = z.object({
-  nombreNegocio: z.string().trim().min(1).max(80).catch('Tienda Don Pepe'),
+  nombreNegocio: z.string().trim().min(1).max(80).catch('Servicios Kairos'),
   nit: z.string().max(30).catch('900.123.456-7'),
   direccion: z.string().max(120).catch('Cra 10 # 20-30, Bogotá'),
   telefono: z.string().max(30).catch('300 123 4567'),

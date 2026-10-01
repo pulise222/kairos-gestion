@@ -200,7 +200,7 @@ export function PrimerArranque() {
 
               {paso === 1 && (
                 <>
-                  <Campo etiqueta="Nombre del negocio" autoFocus placeholder="Ej. Tienda Don Pepe" value={negocio.nombre} onChange={(e) => setNegocio({ ...negocio, nombre: e.target.value })} error={errores.nombre} maxLength={80} />
+                  <Campo etiqueta="Nombre del negocio" autoFocus placeholder="Ej. Servicios Kairos" value={negocio.nombre} onChange={(e) => setNegocio({ ...negocio, nombre: e.target.value })} error={errores.nombre} maxLength={80} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Campo etiqueta="NIT o documento (opcional)" value={negocio.nit} onChange={(e) => setNegocio({ ...negocio, nit: e.target.value })} maxLength={30} />
                     <Campo etiqueta="Teléfono (opcional)" inputMode="tel" value={negocio.telefono} onChange={(e) => setNegocio({ ...negocio, telefono: e.target.value })} maxLength={30} />

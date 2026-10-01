@@ -106,15 +106,21 @@ export function SeccionCopiasReal() {
           <p className="text-lg font-semibold">{copias ? estado.texto : 'Revisando copias…'}</p>
           <p className="text-sm text-muted">{ultima ? `Última copia: ${fechaHora(new Date(ultima.creadaEn))} · ${mb(ultima.tamano)} MB` : copias ? 'Aún no se ha hecho ninguna copia.' : ''}</p>
         </div>
-        <Button onClick={copiarAhora} disabled={haciendo}>
-          {haciendo ? <><Loader2 className="size-4 animate-spin" /> Copiando…</> : <><DatabaseBackup className="size-4" /> Hacer copia ahora</>}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variante="secundario" onClick={() => void bajarArchivo('/copias/excel', 'respaldo-kairos.xlsx').catch((e) => avisar(mensajeDe(e), 'alerta'))}>
+            <Download className="size-4" /> Descargar Excel
+          </Button>
+          <Button onClick={copiarAhora} disabled={haciendo}>
+            {haciendo ? <><Loader2 className="size-4 animate-spin" /> Copiando…</> : <><DatabaseBackup className="size-4" /> Hacer copia ahora</>}
+          </Button>
+        </div>
       </div>
       {error && <p className="rounded-xl border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad" role="alert">{error}</p>}
 
       <Bloque titulo="Cómo se protege tu información" descripcion="Cada copia guarda todos los datos (productos, ventas, inventario, usuarios, ajustes) y las fotos en un solo archivo, y se comprueba al crearla.">
         <ul className="space-y-2 text-sm">
           <li className="flex gap-3"><History className="mt-0.5 size-4 shrink-0 text-accent" /> <span><b>Automática:</b> el sistema hace una copia cada 24 horas mientras el computador esté encendido, y guarda las últimas 30.</span></li>
+          <li className="flex gap-3"><Download className="mt-0.5 size-4 shrink-0 text-accent" /> <span><b>Excel de respaldo:</b> cada día el sistema deja un Excel con ventas, cierres y productos en una carpeta visible del computador, para poder abrirlo aunque el sistema no funcione. También puedes bajarlo con «Descargar Excel».</span></li>
           <li className="flex gap-3"><FolderOutput className={`mt-0.5 size-4 shrink-0 ${extra ? 'text-ok' : 'text-warn'}`} />
             <span>{extra
               ? <><b>Segunda carpeta:</b> cada copia se repite también en la carpeta extra configurada (por ejemplo, una USB o un segundo disco).</>
