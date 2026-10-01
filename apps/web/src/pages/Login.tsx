@@ -18,7 +18,7 @@ export function Login() {
   const navegar = useNavigate()
   const { tema, alternar } = useTema()
   const { ajustes } = useAjustes()
-  const { lema } = useMarcaCliente()
+  const { lema, logo } = useMarcaCliente()
   const { estado, usuario: sesion, necesitaSetup, errorConexion, entrar } = useSesion()
   const [usuario, setUsuario] = useState('')
   const [clave, setClave] = useState('')
@@ -107,9 +107,19 @@ export function Login() {
 
       <form onSubmit={enviar} noValidate className="glass w-full max-w-sm rounded-3xl p-8">
         <div className="mb-8 flex flex-col items-center text-center">
-          <Logo className="size-14 text-accent" />
-          <h1 className="display mt-4 text-5xl">Nivel</h1>
-          <p className="mt-1 text-sm text-muted">{ajustes.nombreNegocio}</p>
+          {logo ? (
+            // Con el logo propio del cliente, el logo completo ES la marca: no se repite el nombre del sistema.
+            <>
+              <Logo variante="completo" className="h-36 w-64" />
+              <h1 className="sr-only">{ajustes.nombreNegocio}</h1>
+            </>
+          ) : (
+            <>
+              <Logo className="size-14 text-accent" />
+              <h1 className="display mt-4 text-5xl">Nivel</h1>
+              <p className="mt-1 text-sm text-muted">{ajustes.nombreNegocio}</p>
+            </>
+          )}
           {lema && <p className="mt-0.5 text-xs italic text-muted">{lema}</p>}
         </div>
 

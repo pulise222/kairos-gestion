@@ -43,6 +43,9 @@ body {
 }
 
 /* Efecto glass: para cosas que FLOTAN (barras, diálogos, buscador). Las tarjetas con datos son sólidas. */
+/* Barra lateral de escritorio: cristal igual que .glass pero con el color y la tinta de la marca */
+.glass.rail { background: var(--rail-fill); }
+
 .glass {
   background: var(--glass-fill);
   -webkit-backdrop-filter: blur(18px) saturate(1.5);

@@ -1,0 +1,33 @@
+{
+  "lema": "Insumos para calzado",
+  "claro": {
+    "bg": "#f1ece1",
+    "panel": "#fbf8f1",
+    "line": "#d3c9b6",
+    "text": "#141d27",
+    "muted": "#5b6470",
+    "accent": "#a9191b",
+    "on-accent": "#ffffff",
+    "tile": "#e6dfd0",
+    "ok": "#25704a",
+    "warn": "#9a6a00",
+    "bad": "#b42318",
+    "rail": "#141d27",
+    "rail-ink": "#c9d1dc"
+  },
+  "oscuro": {
+    "bg": "#0f151d",
+    "panel": "#18212d",
+    "line": "#2a3646",
+    "text": "#eef0f3",
+    "muted": "#9aa6b5",
+    "accent": "#e0494b",
+    "on-accent": "#ffffff",
+    "tile": "#1f2a38",
+    "ok": "#3dbb84",
+    "warn": "#e8ae3a",
+    "bad": "#ef6b6b",
+    "rail": "#0b1118",
+    "rail-ink": "#aab6c5"
+  }
+}

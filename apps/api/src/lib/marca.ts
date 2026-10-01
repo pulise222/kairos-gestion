@@ -10,13 +10,15 @@ import { z } from 'zod'
   colar CSS a la pantalla. Si marca.json tiene un error, se ignora y se avisa en la consola; el sistema sigue funcionando.
 */
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Usa colores #RRGGBB, por ejemplo #b0481f')
-const paleta = z.object({ bg: hex, panel: hex, line: hex, text: hex, muted: hex, accent: hex, 'on-accent': hex, tile: hex, ok: hex, warn: hex, bad: hex }).partial().strict()
+const paleta = z.object({ bg: hex, panel: hex, line: hex, text: hex, muted: hex, accent: hex, 'on-accent': hex, tile: hex, ok: hex, warn: hex, bad: hex, rail: hex, 'rail-ink': hex }).partial().strict()
 const esquema = z.object({ lema: z.string().trim().max(80).optional(), claro: paleta.optional(), oscuro: paleta.optional() }).strict()
 
 export type Paleta = z.infer<typeof paleta>
-export interface Personalizacion { lema?: string; claro?: Paleta; oscuro?: Paleta; logo?: string }
+export interface Personalizacion { lema?: string; claro?: Paleta; oscuro?: Paleta; logo?: string; logoOscuro?: string; logoIcono?: string; logoIconoOscuro?: string }
 
-const LOGOS = ['logo.svg', 'logo.png', 'logo.webp', 'logo.jpg']
+const EXT = ['svg', 'png', 'webp', 'jpg']
+/** Variantes: «logo» (completo, para el acceso), «logo-oscuro» (para el modo oscuro), «logo-icono» (cuadrado, barra lateral) y «logo-icono-oscuro». */
+const VARIANTES = [['logo', 'logo'], ['logoOscuro', 'logo-oscuro'], ['logoIcono', 'logo-icono'], ['logoIconoOscuro', 'logo-icono-oscuro']] as const
 let avisado = ''
 
 export function leerPersonalizacion(dir: string): Personalizacion {
@@ -32,7 +34,10 @@ export function leerPersonalizacion(dir: string): Personalizacion {
       if (avisado !== msg) { avisado = msg; console.warn(`[personalizacion] se ignora marca.json: ${msg}`) }
     }
   }
-  const logo = LOGOS.find((n) => existsSync(join(dir, n)))
-  if (logo) r.logo = `/personalizacion/${logo}?v=${Math.round(statSync(join(dir, logo)).mtimeMs)}` // ?v= para que el navegador recargue el logo si lo cambian
+  for (const [campo, base] of VARIANTES) {
+    const archivo = EXT.map((e) => `${base}.${e}`).find((n) => existsSync(join(dir, n)))
+    // ?v= para que el navegador recargue el logo si lo cambian
+    if (archivo) r[campo] = `/personalizacion/${archivo}?v=${Math.round(statSync(join(dir, archivo)).mtimeMs)}`
+  }
   return r
 }

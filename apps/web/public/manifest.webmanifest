@@ -1,13 +1,13 @@
 {
-  "name": "Nivel · Control de tienda",
-  "short_name": "Nivel",
-  "description": "Ventas, inventario y ganancias de tu negocio.",
+  "name": "Servicios Kairos",
+  "short_name": "Kairos",
+  "description": "Ventas e inventario de Servicios Kairos.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0b0b0d",
-  "theme_color": "#0b0b0d",
+  "background_color": "#141d27",
+  "theme_color": "#141d27",
   "lang": "es",
   "icons": [
     { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

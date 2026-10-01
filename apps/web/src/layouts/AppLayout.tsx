@@ -27,7 +27,7 @@ const todos = [
 
 const enlace = ({ isActive }: { isActive: boolean }) =>
   `grid size-11 place-items-center rounded-full transition ${
-    isActive ? 'bg-accent text-on-accent shadow-sm' : 'text-muted hover:bg-tile hover:text-ink'
+    isActive ? 'bg-accent text-on-accent shadow-sm' : 'text-[color:var(--rail-ink)] hover:bg-[color:var(--rail-hover)]'
   }`
 
 export function AppLayout() {
@@ -49,8 +49,8 @@ export function AppLayout() {
       <Fondo intensidad={enVenta ? 0.035 : 0.11} orbes={!enVenta} />
 
       {/* Barra lateral flotante en píldora (escritorio/tablet) */}
-      <nav aria-label="Principal" className="glass sticky top-4 z-20 hidden h-[calc(100dvh-2rem)] w-[68px] shrink-0 flex-col items-center gap-2 rounded-full py-4 md:flex">
-        <Logo className="mb-3 size-9 text-accent" />
+      <nav aria-label="Principal" className="glass rail sticky top-4 z-20 hidden h-[calc(100dvh-2rem)] w-[68px] shrink-0 flex-col items-center gap-2 rounded-full py-4 md:flex">
+        <Logo enRiel className="mb-3 h-9 w-12 text-accent" />
         {items.map(({ a, nombre, Icono }) => (
           <NavLink key={a} to={a} className={enlace} title={nombre} aria-label={nombre}>
             <Icono className="size-5" />
@@ -62,10 +62,10 @@ export function AppLayout() {
             <Settings className="size-5" />
           </NavLink>
         )}
-        <button onClick={() => setCuenta(true)} className="grid size-11 place-items-center rounded-full text-muted transition hover:bg-tile hover:text-ink" title="Cambiar mi contraseña" aria-label="Cambiar mi contraseña">
+        <button onClick={() => setCuenta(true)} className="grid size-11 place-items-center rounded-full text-[color:var(--rail-ink)] transition hover:bg-[color:var(--rail-hover)]" title="Cambiar mi contraseña" aria-label="Cambiar mi contraseña">
           <KeyRound className="size-5" />
         </button>
-        <button onClick={cerrarSesion} className="grid size-11 place-items-center rounded-full text-muted transition hover:bg-tile hover:text-ink" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <button onClick={cerrarSesion} className="grid size-11 place-items-center rounded-full text-[color:var(--rail-ink)] transition hover:bg-[color:var(--rail-hover)]" title="Cerrar sesión" aria-label="Cerrar sesión">
           <LogOut className="size-5" />
         </button>
       </nav>

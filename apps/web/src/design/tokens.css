@@ -33,6 +33,11 @@
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-shadow: 0 6px 22px rgba(60, 40, 20, 0.12);
 
+  /* Barra lateral: por defecto es el mismo cristal de siempre; una marca puede teñirla (ver design/personalizacion.ts) */
+  --rail-fill: var(--glass-fill);
+  --rail-ink: var(--muted);
+  --rail-hover: var(--tile);
+
   --radius: 10px;
   --radius-card: 18px;
 }
