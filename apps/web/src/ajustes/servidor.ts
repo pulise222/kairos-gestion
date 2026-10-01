@@ -10,6 +10,7 @@ export interface ConfigServidor {
   direccion?: string
   telefono?: string
   permitirVentaSinStock?: boolean
+  controlarStockPorDefecto?: boolean
   metaDiaria?: number
   colorAcento?: string | null
   patron?: Ajustes['patron']

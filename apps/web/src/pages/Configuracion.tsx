@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { DatabaseBackup, LayoutGrid, Palette, Receipt, Store, Tags, Users } from 'lucide-react'
+import { DatabaseBackup, LayoutGrid, MessageSquareText, Palette, Receipt, Store, Tags, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { SeccionApariencia } from '../components/config/SeccionApariencia'
 import { SeccionCategorias } from '../components/config/SeccionCategorias'
 import { MODO_DEMO } from '../config'
 import { SeccionCopias } from '../components/config/SeccionCopias'
+import { SeccionComentarios } from '../components/config/SeccionComentarios'
 import { SeccionCopiasReal } from '../components/config/SeccionCopiasReal'
 import { SeccionModulos } from '../components/config/SeccionModulos'
 import { SeccionNegocio } from '../components/config/SeccionNegocio'
 import { SeccionRecibo } from '../components/config/SeccionRecibo'
 import { SeccionUsuarios } from '../components/config/SeccionUsuarios'
 
-type Id = 'negocio' | 'categorias' | 'usuarios' | 'apariencia' | 'modulos' | 'recibo' | 'copias'
+type Id = 'comentarios' | 'negocio' | 'categorias' | 'usuarios' | 'apariencia' | 'modulos' | 'recibo' | 'copias'
 
 const secciones: { id: Id; nombre: string; Icono: LucideIcon }[] = [
   { id: 'negocio', nombre: 'Negocio', Icono: Store },
@@ -21,6 +22,7 @@ const secciones: { id: Id; nombre: string; Icono: LucideIcon }[] = [
   { id: 'modulos', nombre: 'Módulos', Icono: LayoutGrid },
   { id: 'recibo', nombre: 'Recibo', Icono: Receipt },
   { id: 'copias', nombre: 'Copias de seguridad', Icono: DatabaseBackup },
+  { id: 'comentarios', nombre: 'Comentarios', Icono: MessageSquareText },
 ]
 
 export function Configuracion() {
@@ -51,6 +53,7 @@ export function Configuracion() {
 
         <div className="min-w-0" role="region" aria-label={actual.nombre}>
           {activa === 'negocio' && <SeccionNegocio />}
+          {activa === 'comentarios' && <SeccionComentarios />}
           {activa === 'categorias' && <SeccionCategorias />}
           {activa === 'usuarios' && <SeccionUsuarios />}
           {activa === 'apariencia' && <SeccionApariencia />}

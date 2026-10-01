@@ -32,6 +32,8 @@ export interface Producto {
   stock: number
   minimo: number
   activo: boolean
+  /** false = no se lleva inventario de este producto (se vende sin descontar stock). Si no viene, se asume que sí. */
+  controlaStock?: boolean
 }
 
 export const categorias: Categoria[] = [

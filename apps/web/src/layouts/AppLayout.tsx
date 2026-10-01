@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Boxes, KeyRound, LayoutDashboard, LogOut, Moon, Package, ReceiptText, RefreshCw, Search, Settings, ShoppingCart, Sun, Truck, WifiOff,
+  Boxes, CalendarCheck, KeyRound, LayoutDashboard, LogOut, Moon, Package, ReceiptText, RefreshCw, Search, Settings, ShoppingCart, Sun, Truck, WifiOff,
 } from 'lucide-react'
 import { useAjustes } from '../ajustes/contexto'
 import { Button } from '../components/ui/Button'
+import { BotonLetra } from '../components/ui/BotonLetra'
+import { EnviarComentario } from '../components/negocio/EnviarComentario'
 import { MenuCuenta } from '../components/negocio/MenuCuenta'
 import { CambiarContrasena } from '../components/negocio/CambiarContrasena'
 import { Logo } from '../components/ui/Logo'
@@ -17,13 +19,21 @@ import { useTema } from '../theme/ThemeProvider'
 
 // soloDueno: el vendedor no ve estos módulos (y además el servidor le responde 403 si intenta entrar por su cuenta).
 const todos = [
-  { a: '/panel', nombre: 'Panel', Icono: LayoutDashboard, soloDueno: true },
+  // Venta va primero: es la pantalla de todo el día.
   { a: '/venta', nombre: 'Venta', Icono: ShoppingCart, soloDueno: false },
   { a: '/ventas', nombre: 'Ventas', Icono: ReceiptText, soloDueno: false },
+  { a: '/cierre', nombre: 'Cierre del día', Icono: CalendarCheck, soloDueno: true },
   { a: '/productos', nombre: 'Productos', Icono: Package, soloDueno: false },
   { a: '/inventario', nombre: 'Inventario', Icono: Boxes, soloDueno: false },
   { a: '/proveedores', nombre: 'Proveedores', Icono: Truck, soloDueno: true },
+  { a: '/panel', nombre: 'Panel', Icono: LayoutDashboard, soloDueno: true },
 ]
+
+// Barra de celular: cada ícono ocupa el mismo ancho, así caben todos aunque la letra sea grande.
+const enlaceMovil = ({ isActive }: { isActive: boolean }) =>
+  `grid h-11 min-w-0 flex-1 place-items-center rounded-full transition ${
+    isActive ? 'bg-accent text-on-accent shadow-sm' : 'text-[color:var(--rail-ink)] hover:bg-[color:var(--rail-hover)]'
+  }`
 
 const enlace = ({ isActive }: { isActive: boolean }) =>
   `grid size-11 place-items-center rounded-full transition ${
@@ -34,7 +44,8 @@ export function AppLayout() {
   const { tema, alternar } = useTema()
   const [cuenta, setCuenta] = useState(false)
   const navegar = useNavigate()
-  const enVenta = useLocation().pathname === '/venta'
+  const ruta = useLocation().pathname
+  const enVenta = ruta === '/venta'
   const { ajustes, copias } = useAjustes()
   const { usuario, esDueno, salir } = useSesion()
   const { cargando, errorCarga, refrescar } = useCatalogo()
@@ -62,9 +73,6 @@ export function AppLayout() {
             <Settings className="size-5" />
           </NavLink>
         )}
-        <button onClick={() => setCuenta(true)} className="grid size-11 place-items-center rounded-full text-[color:var(--rail-ink)] transition hover:bg-[color:var(--rail-hover)]" title="Cambiar mi contraseña" aria-label="Cambiar mi contraseña">
-          <KeyRound className="size-5" />
-        </button>
         <button onClick={cerrarSesion} className="grid size-11 place-items-center rounded-full text-[color:var(--rail-ink)] transition hover:bg-[color:var(--rail-hover)]" title="Cerrar sesión" aria-label="Cerrar sesión">
           <LogOut className="size-5" />
         </button>
@@ -82,6 +90,8 @@ export function AppLayout() {
               <span className={`size-2.5 rounded-full ${copia.nivel === 'ok' ? 'bg-ok' : copia.nivel === 'warn' ? 'bg-warn' : 'bg-bad'}`} /> <span className="hidden sm:inline">{copia.texto}</span>
             </span>
           )}
+          <BotonLetra />
+          <EnviarComentario ruta={ruta} />
           <button onClick={alternar} className="glass grid size-11 place-items-center rounded-full text-ink" aria-label={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
             {tema === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </button>
@@ -117,9 +127,9 @@ export function AppLayout() {
       <CambiarContrasena abierto={cuenta} onCerrar={() => setCuenta(false)} />
 
       {/* Barra inferior en celular */}
-      <nav aria-label="Principal" className="glass fixed inset-x-3 bottom-3 z-20 flex justify-around rounded-full p-1.5 md:hidden">
+      <nav aria-label="Principal" className="glass rail fixed inset-x-3 bottom-3 z-20 flex gap-0.5 rounded-full p-1.5 md:hidden">
         {[...items, ...(esDueno ? [{ a: '/configuracion', nombre: 'Configuración', Icono: Settings }] : [])].map(({ a, nombre, Icono }) => (
-          <NavLink key={a} to={a} className={enlace} aria-label={nombre}>
+          <NavLink key={a} to={a} className={enlaceMovil} aria-label={nombre}>
             <Icono className="size-5" />
           </NavLink>
         ))}

@@ -162,7 +162,9 @@ export interface Catalogo {
   /** Agrega categorías que no existan (por nombre). Lo usa el asistente de primer arranque. */
   crearCategorias: (nuevas: { nombre: string; color: string }[]) => Promise<void>
   /** Registra la venta. El servidor calcula total y vueltas con los precios de SU base de datos. */
-  registrarVenta: (lineas: { productoId: number; cantidad: number }[], pago: PagoVenta) => Promise<ResultadoVenta>
+  registrarVenta: (lineas: { productoId: number; cantidad: number; /** solo en ventas por monto */ precio?: number }[], pago: PagoVenta) => Promise<ResultadoVenta>
+  /** «Venta por monto»: el producto interno de una sección (se crea la primera vez). Su valor lo escribe quien vende. */
+  productoVentaRapida: (categoriaId: string) => Promise<Producto>
   /** Historial de ventas (el dueño ve todas; el vendedor, solo las suyas). Pagina de 25 en 25. */
   listarVentas: (filtro: FiltroVentas) => Promise<{ total: number; items: VentaListada[] }>
   /** HU-16: anula una venta (solo el dueño): el stock vuelve y queda el motivo. */

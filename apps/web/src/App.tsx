@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layouts/AppLayout'
+import { CierrePagina } from './pages/Cierre'
 import { Configuracion } from './pages/Configuracion'
 import { Inventario } from './pages/Inventario'
 import { Login } from './pages/Login'
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/inventario" element={<Inventario />} />
             {/* Estas son solo del dueño: un vendedor que escriba la dirección rebota a Venta */}
             <Route element={<RutaProtegida soloDueno />}>
+              <Route path="/cierre" element={<CierrePagina />} />
               <Route path="/panel" element={<Panel />} />
               <Route path="/proveedores" element={<Proveedores />} />
               <Route path="/configuracion" element={<Configuracion />} />

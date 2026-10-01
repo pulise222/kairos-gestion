@@ -18,6 +18,7 @@ export interface ProductoApi {
   codigo: string
   descripcion?: string | null
   imagen?: string | null
+  controlaStock?: boolean
   categoriaId: number
   proveedorId: number | null
   costo?: number
@@ -106,7 +107,7 @@ export const aProveedor = (p: ProveedorApi): Proveedor => ({
 })
 
 export const aProducto = (p: ProductoApi): Producto => ({
-  id: p.id, codigo: p.codigo, nombre: p.nombre, descripcion: p.descripcion ?? '', imagen: p.imagen ?? null, categoriaId: String(p.categoriaId), proveedorId: p.proveedorId,
+  id: p.id, codigo: p.codigo, nombre: p.nombre, descripcion: p.descripcion ?? '', imagen: p.imagen ?? null, controlaStock: p.controlaStock ?? true, categoriaId: String(p.categoriaId), proveedorId: p.proveedorId,
   precio: p.precio, costo: p.costo ?? 0, stock: p.stock, minimo: p.stockMinimo, activo: p.activo,
 })
 
@@ -125,6 +126,7 @@ export const cuerpoProductoNuevo = (d: DatosProducto, stockInicial: number) => (
   nombre: d.nombre, ...(d.codigo.trim() ? { codigo: d.codigo.trim() } : {}), // sin código: lo asigna el servidor
   descripcion: d.descripcion?.trim() || null, categoriaId: Number(d.categoriaId), proveedorId: d.proveedorId,
   costo: d.costo, precio: d.precio, stockMinimo: d.minimo, stockInicial,
+  ...(d.controlaStock !== undefined ? { controlaStock: d.controlaStock } : {}), // si no se indica, manda el ajuste general del sistema
 })
 
 /** Cuerpo para EDITAR: solo viaja lo que cambió (el servidor rechaza campos que no conoce, p. ej. "stock"). */
@@ -139,6 +141,7 @@ export function cuerpoProductoCambios(c: Partial<DatosProducto>) {
   if (c.precio !== undefined) b.precio = c.precio
   if (c.minimo !== undefined) b.stockMinimo = c.minimo
   if (c.activo !== undefined) b.activo = c.activo
+  if (c.controlaStock !== undefined) b.controlaStock = c.controlaStock
   return b
 }
 

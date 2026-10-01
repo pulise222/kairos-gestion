@@ -9,6 +9,7 @@ import { mensajeDe } from '../../api/cliente'
 import { useEnvioUnico } from '../../lib/envio'
 import { useCatalogo } from '../../data/contexto'
 import { pesos } from '../../lib/dinero'
+import { llevaInventario } from '../../lib/busqueda'
 import { sugerirCantidad, totalEntrada } from '../../lib/inventario'
 import type { LineaEntrada } from '../../lib/inventario'
 
@@ -24,7 +25,9 @@ const soloDigitos = (t: string) => Number(t.replace(/\D/g, '')) || 0
 
 /* HU-17: entrada de mercancía. Sube el stock de cada producto y ACTUALIZA su costo con el de esta compra. */
 export function EntradaMercancia({ abierto, onCerrar, inicial }: Props) {
-  const { productos, proveedores, registrarEntrada } = useCatalogo()
+  const { productos: todosLosProductos, proveedores, registrarEntrada } = useCatalogo()
+  // Solo se muestran los productos CON control de inventario (los demás no tienen stock que contar, pedir o devolver).
+  const productos = useMemo(() => todosLosProductos.filter(llevaInventario), [todosLosProductos])
   const avisar = useAviso()
   const [proveedorId, setProveedorId] = useState('')
   const [lineas, setLineas] = useState<LineaEntrada[]>([])

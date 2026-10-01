@@ -5,10 +5,10 @@ import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useAjustes } from '../ajustes/contexto'
 import { CifraAnimada } from '../components/negocio/CifraAnimada'
+import { EditorMeta } from '../components/negocio/EditorMeta'
 import { FiltroPeriodo } from '../components/negocio/FiltroPeriodo'
 import { AnilloStock, Medidor, Sparkline } from '../components/negocio/Graficas'
 import { Button } from '../components/ui/Button'
-import { useSesion } from '../sesion/contexto'
 import { usePanel } from '../panel/usePanel'
 import { pesos, pesosCorto } from '../lib/dinero'
 import { incluyeDia, mejoresDias, metaDelPeriodo, nombreDia, serie, textoComparacion, variacion } from '../lib/panel'
@@ -46,10 +46,12 @@ const formatoEje = (clave: string, g: 'dia' | 'semana' | 'mes') => {
   return g === 'mes' ? new Intl.DateTimeFormat('es-CO', { month: 'short' }).format(d) : `${d.getDate()}/${d.getMonth() + 1}`
 }
 
+/** «Buenos días / Buenas tardes / Buenas noches» según la hora del equipo. */
+const saludo = (ahora = new Date()) => (ahora.getHours() < 12 ? 'Buenos días' : ahora.getHours() < 19 ? 'Buenas tardes' : 'Buenas noches')
+
 export function Panel() {
   const navegar = useNavigate()
-  const { ajustes } = useAjustes()
-  const { usuario } = useSesion()
+  const { ajustes, cambiar } = useAjustes()
   const [params, setParams] = useSearchParams()
   const [hoy] = useState(() => new Date())
   const hoyTexto = aTexto(hoy)
@@ -91,7 +93,7 @@ export function Panel() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="display text-4xl md:text-5xl">Hola, {usuario?.nombre.split(' ')[0] ?? ''}</h1>
+        <h1 className="display text-4xl md:text-5xl">{saludo()}</h1>
         <p className="mt-1 text-sm text-muted">Así va {ajustes.nombreNegocio}</p>
       </div>
 
@@ -167,15 +169,15 @@ export function Panel() {
           </div>
         </Tarjeta>
 
-        <Tarjeta titulo="Meta" nota={diasEnRango(rango) > 1 ? `${diasEnRango(rango)} días` : undefined}>
-          {meta > 0 ? (
-            <>
-              <Medidor porcentaje={Math.round((act.ventas / meta) * 100)} />
-              <p className="mt-1 text-center text-sm text-muted"><span className="tabular">{pesosCorto(act.ventas)}</span> de <span className="tabular">{pesosCorto(meta)}</span></p>
-            </>
-          ) : (
-            <p className="py-8 text-center text-sm text-muted">Define una meta diaria en Configuración → Negocio para ver tu avance.</p>
-          )}
+        <Tarjeta titulo="Meta del día" nota={diasEnRango(rango) > 1 ? `${diasEnRango(rango)} días` : undefined}>
+          <EditorMeta metaDiaria={ajustes.metaDiaria} onCambiar={(v) => cambiar({ metaDiaria: v })}>
+            {meta > 0 && (
+              <>
+                <Medidor porcentaje={Math.round((act.ventas / meta) * 100)} />
+                <p className="mt-1 text-center text-sm text-muted"><span className="tabular">{pesosCorto(act.ventas)}</span> de <span className="tabular">{pesosCorto(meta)}</span></p>
+              </>
+            )}
+          </EditorMeta>
         </Tarjeta>
       </div>
 

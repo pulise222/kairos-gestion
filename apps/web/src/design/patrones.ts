@@ -2,9 +2,10 @@
   Patrones de fondo generados con código (sin imágenes: livianos, sin derechos de autor y sin internet).
   Cada uno es una función que dibuja un fotograma sobre un <canvas>; al variar "t" (tiempo) se mueve despacio.
 */
-export type Patron = 'curvas' | 'puntos' | 'ondas'
+export type Patron = 'curvas' | 'puntos' | 'ondas' | 'costura'
 
 export const PATRONES: { id: Patron; nombre: string; descripcion: string }[] = [
+  { id: 'costura', nombre: 'Puntadas', descripcion: 'Líneas de costura que avanzan despacio, como un hilo.' },
   { id: 'curvas', nombre: 'Curvas de nivel', descripcion: 'Líneas topográficas que se deforman despacio.' },
   { id: 'puntos', nombre: 'Malla de puntos', descripcion: 'Una cuadrícula que respira como una ola.' },
   { id: 'ondas', nombre: 'Ondas', descripcion: 'Líneas que ondulan, como un pulso.' },
@@ -87,6 +88,26 @@ function ondas(ctx: Ctx, w: number, h: number, t: number) {
   }
 }
 
-const dibujos: Record<Patron, (ctx: Ctx, w: number, h: number, t: number) => void> = { curvas, puntos, ondas }
+/** Puntadas: líneas onduladas de trazo cortado que avanzan despacio, como una costura (identidad de Servicios Kairos). */
+function costura(ctx: Ctx, w: number, h: number, t: number) {
+  ctx.save()
+  ctx.lineWidth = 1.4
+  ctx.lineCap = 'round'
+  const paso = 44
+  for (let y = -paso, fila = 0; y < h + paso; y += paso, fila++) {
+    ctx.setLineDash([11, 8])
+    ctx.lineDashOffset = -t * 15 * (fila % 2 ? 1 : -1) // las filas se mueven en sentidos opuestos
+    ctx.beginPath()
+    for (let x = 0; x <= w; x += 10) {
+      const yy = y + Math.sin(x * 0.006 + y * 0.012 + t * 0.25) * 17 + Math.sin(x * 0.018 - t * 0.2) * 5
+      if (x) ctx.lineTo(x, yy)
+      else ctx.moveTo(x, yy)
+    }
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
+const dibujos: Record<Patron, (ctx: Ctx, w: number, h: number, t: number) => void> = { curvas, puntos, ondas, costura }
 
 export const dibujarPatron = (patron: Patron, ctx: Ctx, w: number, h: number, t: number) => dibujos[patron](ctx, w, h, t)

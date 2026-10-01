@@ -5,6 +5,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { CircleHelp, Eye, EyeOff, Moon, Sun, WifiOff } from 'lucide-react'
 import { ErrorApi } from '../api/cliente'
 import { Fondo } from '../design/Fondo'
+import { BotonLetra } from '../components/ui/BotonLetra'
 import { Logo } from '../components/ui/Logo'
 import { Campo } from '../components/ui/Campo'
 import { Button } from '../components/ui/Button'
@@ -32,12 +33,12 @@ export function Login() {
   const ayuda = hover || fijada
   const entrarComo = async (nombre: string) => {
     setEnviando(true)
-    try { const u = await entrar(nombre, 'demo'); navegar(u.rol === 'DUENO' ? '/panel' : '/venta', { replace: true }) } finally { setEnviando(false) }
+    try { await entrar(nombre, 'demo'); navegar('/venta', { replace: true }) } finally { setEnviando(false) }
   }
 
   if (estado === 'cargando') return <Cargando />
   // Ya hay sesión: cada rol cae en su pantalla de trabajo (el dueño en el Panel; el vendedor, en la caja).
-  if (estado === 'activa' && sesion) return <Navigate to={sesion.rol === 'DUENO' ? '/panel' : '/venta'} replace />
+  if (estado === 'activa' && sesion) return <Navigate to="/venta" replace />
   // Sistema recién instalado, sin ningún usuario: toca el asistente de primer arranque.
   if (necesitaSetup) return <Navigate to="/inicio" replace />
 
@@ -53,7 +54,8 @@ export function Login() {
     setEnviando(true)
     try {
       const u = await entrar(usuario.trim(), clave)
-      navegar(u.rol === 'DUENO' ? '/panel' : '/venta', { replace: true })
+      void u
+      navegar('/venta', { replace: true }) // todos empiezan en Venta: es la pantalla de todo el día
     } catch (err) {
       // Mismo mensaje para "no existe" y "clave mala": el servidor no da pistas y nosotros tampoco.
       setErrorGeneral(err instanceof ErrorApi ? err.message : 'No se pudo iniciar sesión. Intenta de nuevo.')
@@ -68,6 +70,7 @@ export function Login() {
       {/* Aquí el patrón es protagonista: intensidad alta */}
       <Fondo intensidad={0.24} />
 
+      <BotonLetra className="absolute right-[4.25rem] top-4" />
       <button onClick={alternar} className="glass absolute right-4 top-4 grid size-11 place-items-center rounded-full text-ink" aria-label={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
         {tema === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
       </button>

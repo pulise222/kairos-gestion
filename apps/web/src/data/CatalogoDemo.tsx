@@ -218,6 +218,11 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
     return { cambios, sinCambio: filas.length - cambios.length }
   }, [productos, mov])
 
+  // La venta por monto es del sistema real (cliente con servidor): la demo pública no la incluye.
+  const productoVentaRapida: Catalogo['productoVentaRapida'] = useCallback(async () => {
+    throw new ErrorApi(422, 'NO_DISPONIBLE_EN_DEMO', 'La venta por monto no está en la demostración.')
+  }, [])
+
   const crearProveedor: Catalogo['crearProveedor'] = useCallback(async (datos) => {
     const nuevo: Proveedor = { ...datos, id: siguienteId.current.proveedor++, activo: true }
     setProveedores((ps) => [...ps, nuevo])
@@ -244,7 +249,7 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
   const refrescar = useCallback(async () => {}, []) // en la demo no hay servidor al que preguntar
 
   const valor = useMemo<Catalogo>(
-    () => ({ cargando: false, errorCarga: null, refrescar, productos, categorias, proveedores, movimientos, compras, crearProveedor, editarProveedor, crearCategorias, crearCategoria, editarCategoria, subirImagenProducto, quitarImagenProducto, crearProducto, editarProducto, registrarConteo, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, codigoEnUso }),
+    () => ({ cargando: false, errorCarga: null, refrescar, productos, categorias, proveedores, movimientos, compras, crearProveedor, editarProveedor, crearCategorias, crearCategoria, editarCategoria, subirImagenProducto, quitarImagenProducto, crearProducto, editarProducto, registrarConteo, productoVentaRapida, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, codigoEnUso }),
     [refrescar, productos, categorias, proveedores, movimientos, compras, crearProveedor, editarProveedor, crearCategorias, crearCategoria, editarCategoria, subirImagenProducto, quitarImagenProducto, crearProducto, editarProducto, registrarConteo, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, codigoEnUso],
   )
   return <CatalogoContext.Provider value={valor}>{children}</CatalogoContext.Provider>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { llevaInventario } from '../../lib/busqueda'
 import { Trash2, Undo2 } from 'lucide-react'
 import { ErrorApi, mensajeDe } from '../../api/cliente'
 import { Button } from '../ui/Button'
@@ -25,7 +26,9 @@ interface Props {
 
 /* Devolver mercancía a un proveedor: llegó de más, dañada, equivocada o vencida. Sale del inventario. */
 export function DevolucionProveedor({ proveedor, onCerrar, onHecha }: Props) {
-  const { productos, compras, registrarDevolucionProveedor, listarDevolucionesProveedor } = useCatalogo()
+  const { productos: todosLosProductos, compras, registrarDevolucionProveedor, listarDevolucionesProveedor } = useCatalogo()
+  // Solo se muestran los productos CON control de inventario (los demás no tienen stock que contar, pedir o devolver).
+  const productos = useMemo(() => todosLosProductos.filter(llevaInventario), [todosLosProductos])
   const avisar = useAviso()
   const { enviando, ejecutar } = useEnvioUnico()
   const intento = useRef<IntentoVenta | null>(null)

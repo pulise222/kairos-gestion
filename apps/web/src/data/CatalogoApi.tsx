@@ -210,6 +210,11 @@ export function CatalogoApi({ children }: { children: ReactNode }) {
     return r
   }, [refrescarProductos, cargarMovimientos])
 
+  const productoVentaRapida: Catalogo['productoVentaRapida'] = useCallback(async (categoriaId) => {
+    const r = await api.get<{ id: number; nombre: string }>(`/productos/venta-rapida/${categoriaId}`)
+    return { id: r.id, codigo: `VR-${categoriaId}`, nombre: r.nombre, categoriaId, proveedorId: null, precio: 0, costo: 0, stock: 0, minimo: 0, activo: true, controlaStock: false }
+  }, [])
+
   const codigoEnUso: Catalogo['codigoEnUso'] = useCallback(
     (codigo, ignorarId) => productos.some((p) => p.codigo.toLowerCase() === codigo.trim().toLowerCase() && p.id !== ignorarId), // sin distinguir mayúsculas, igual que el servidor
     [productos],
@@ -218,9 +223,9 @@ export function CatalogoApi({ children }: { children: ReactNode }) {
   const valor = useMemo<Catalogo>(
     () => ({
       cargando, errorCarga, refrescar: cargarTodo, productos, categorias, proveedores, movimientos, compras,
-      crearProducto, editarProducto, subirImagenProducto, quitarImagenProducto, crearCategoria, editarCategoria, crearProveedor, editarProveedor, crearCategorias, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, registrarConteo, codigoEnUso,
+      crearProducto, editarProducto, subirImagenProducto, quitarImagenProducto, crearCategoria, editarCategoria, crearProveedor, editarProveedor, crearCategorias, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, registrarConteo, productoVentaRapida, codigoEnUso,
     }),
-    [cargando, errorCarga, cargarTodo, productos, categorias, proveedores, movimientos, compras, crearProducto, editarProducto, subirImagenProducto, quitarImagenProducto, crearCategoria, editarCategoria, crearProveedor, editarProveedor, crearCategorias, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, registrarConteo, codigoEnUso],
+    [cargando, errorCarga, cargarTodo, productos, categorias, proveedores, movimientos, compras, crearProducto, editarProducto, subirImagenProducto, quitarImagenProducto, crearCategoria, editarCategoria, crearProveedor, editarProveedor, crearCategorias, registrarVenta, listarVentas, anularVenta, registrarDevolucionCliente, registrarDevolucionProveedor, listarDevolucionesProveedor, registrarEntrada, ajustarStock, registrarConteo, productoVentaRapida, codigoEnUso],
   )
   return <CatalogoContext.Provider value={valor}>{children}</CatalogoContext.Provider>
 }

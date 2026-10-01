@@ -1,4 +1,5 @@
 import type { Compra } from '../data/contexto'
+import { llevaInventario } from './busqueda'
 import { sugerirCantidad } from './inventario'
 import type { Producto, Proveedor } from '../mock/catalogo'
 
@@ -23,7 +24,7 @@ export function resumenProveedor(proveedor: Pick<Proveedor, 'id'>, productos: Pr
   const limite = ahora.getTime() - 90 * DIA
   return {
     productos: suyos,
-    bajos: suyos.filter((p) => p.stock <= p.minimo),
+    bajos: suyos.filter((p) => llevaInventario(p) && p.stock <= p.minimo), // sin control de inventario no hay nada que pedir por stock
     compras: propias,
     comprado90d: propias.filter((c) => c.fecha.getTime() >= limite).reduce((s, c) => s + c.total, 0),
     ultimaCompra: propias[0]?.fecha ?? null,

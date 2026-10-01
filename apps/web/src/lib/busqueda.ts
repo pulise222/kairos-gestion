@@ -55,9 +55,13 @@ export function margen(precio: number, costo: number) {
   return { pesos, porcentaje: precio > 0 ? Math.round((pesos / precio) * 100) : 0 }
 }
 
+/** ¿Se lleva inventario de este producto? (por defecto sí) */
+export const llevaInventario = (p: { controlaStock?: boolean }) => p.controlaStock !== false
+
 export type EstadoStock = 'agotado' | 'bajo' | 'ok'
 
-export function estadoDe(p: Pick<Producto, 'stock' | 'minimo'>): EstadoStock {
+export function estadoDe(p: Pick<Producto, 'stock' | 'minimo' | 'controlaStock'>): EstadoStock {
+  if (p.controlaStock === false) return 'ok' // sin control de inventario no hay alertas de stock
   if (p.stock <= 0) return 'agotado'
   if (p.stock <= p.minimo) return 'bajo'
   return 'ok'

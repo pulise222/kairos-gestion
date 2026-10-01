@@ -11,7 +11,7 @@ import { Button } from '../components/ui/Button'
 import { useSesion } from '../sesion/contexto'
 import { useCatalogo } from '../data/contexto'
 import type { Movimiento } from '../data/contexto'
-import { buscar } from '../lib/busqueda'
+import { buscar, llevaInventario } from '../lib/busqueda'
 import { pesos } from '../lib/dinero'
 import { fechaHora } from '../lib/fechas'
 import { porUrgencia } from '../lib/inventario'
@@ -31,7 +31,9 @@ const etiquetaTipo: Record<Movimiento['tipo'], { texto: string; clase: string }>
 }
 
 export function Inventario() {
-  const { productos, categorias, proveedores, movimientos, compras } = useCatalogo()
+  const { productos: todosLosProductos, categorias, proveedores, movimientos, compras } = useCatalogo()
+  // Solo se muestran los productos CON control de inventario (los demás no tienen stock que contar, pedir o devolver).
+  const productos = useMemo(() => todosLosProductos.filter(llevaInventario), [todosLosProductos])
   const { esDueno } = useSesion() // el vendedor solo consulta el estado del stock
   const [params, setParams] = useSearchParams()
   const [pestana, setPestana] = useState<Pestana>('estado')

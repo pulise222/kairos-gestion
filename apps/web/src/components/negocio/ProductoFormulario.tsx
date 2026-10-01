@@ -13,6 +13,7 @@ import { Selector } from '../ui/Selector'
 import { useAviso } from '../ui/Avisos'
 import { ErrorApi, mensajeDe } from '../../api/cliente'
 import { useEnvioUnico } from '../../lib/envio'
+import { useAjustes } from '../../ajustes/contexto'
 import { useCatalogo } from '../../data/contexto'
 import { margen } from '../../lib/busqueda'
 import { problemaDeImagen, reducirImagen } from '../../lib/imagen'
@@ -36,6 +37,8 @@ const esquema = z.object({
   stockInicial: z.number().int().min(0).max(100_000, 'Valor demasiado grande'),
   minimo: z.number().int().min(0).max(100_000, 'Valor demasiado grande'),
   activo: z.boolean(),
+  /** ¿Se lleva inventario (stock) de este producto? */
+  controlaStock: z.boolean(),
 })
 type Valores = z.infer<typeof esquema>
 
@@ -46,9 +49,10 @@ interface Props {
   producto?: Producto
 }
 
-const vacio: Valores = { nombre: '', codigo: '', descripcion: '', categoriaId: '', proveedorId: '', costo: 0, precio: 0, stockInicial: 0, minimo: 0, activo: true }
+const vacio: Valores = { nombre: '', codigo: '', descripcion: '', categoriaId: '', proveedorId: '', costo: 0, precio: 0, stockInicial: 0, minimo: 0, activo: true, controlaStock: true }
 
 export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
+  const { ajustes } = useAjustes()
   const { categorias, proveedores, crearProducto, editarProducto, codigoEnUso, subirImagenProducto, quitarImagenProducto, crearCategoria } = useCatalogo()
   const avisar = useAviso()
   const editando = !!producto
@@ -76,9 +80,9 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
     if (!abierto) return
     setFoto(undefined); setVistaFoto(null); setErrorFoto(null); setNuevaCat(null); setErrorCat(null)
     reset(producto
-      ? { nombre: producto.nombre, codigo: producto.codigo, descripcion: producto.descripcion ?? '', categoriaId: producto.categoriaId, proveedorId: producto.proveedorId ? String(producto.proveedorId) : '', costo: producto.costo, precio: producto.precio, stockInicial: 0, minimo: producto.minimo, activo: producto.activo }
-      : vacio)
-  }, [abierto, producto, reset])
+      ? { nombre: producto.nombre, codigo: producto.codigo, descripcion: producto.descripcion ?? '', categoriaId: producto.categoriaId, proveedorId: producto.proveedorId ? String(producto.proveedorId) : '', costo: producto.costo, precio: producto.precio, stockInicial: 0, minimo: producto.minimo, activo: producto.activo, controlaStock: producto.controlaStock !== false }
+      : { ...vacio, controlaStock: ajustes.controlarStockPorDefecto })
+  }, [abierto, producto, reset, ajustes.controlarStockPorDefecto])
 
   // ¿Hay una foto que mostrar? (la recién elegida, o la guardada si no la van a quitar)
   const tieneFoto = !!vistaFoto || (!!producto?.imagen && foto !== null)
@@ -133,7 +137,7 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
     }
     const datos = {
       nombre: v.nombre, codigo: v.codigo, descripcion: v.descripcion, categoriaId: v.categoriaId, proveedorId: v.proveedorId ? Number(v.proveedorId) : null,
-      costo: v.costo, precio: v.precio, minimo: v.minimo, activo: v.activo,
+      costo: v.costo, precio: v.precio, minimo: v.minimo, activo: v.activo, controlaStock: v.controlaStock,
     }
     try {
       let id: number
@@ -235,6 +239,17 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
           </span>
         </div>
 
+        <Controller name="controlaStock" control={control} render={({ field }) => (
+          <Interruptor
+            activo={field.value} onCambiar={field.onChange} etiqueta="Llevar inventario de este producto"
+            descripcion={field.value ? 'Cada venta descuenta el stock y el sistema avisa cuando se acaba.' : 'Se vende sin descontar nada. Úsalo para productos que no cuentas.'}
+          />
+        )} />
+        {editando && producto.controlaStock === false && watch('controlaStock') && (
+          <p className="-mt-2 text-xs text-warn">Al activarlo el stock empieza en 0. Después cuenta cuánto hay con «Conteo físico» en Inventario.</p>
+        )}
+
+        {watch('controlaStock') && (
         <div className="grid gap-4 sm:grid-cols-2">
           {editando ? (
             <div>
@@ -249,7 +264,8 @@ export function ProductoFormulario({ abierto, onCerrar, producto }: Props) {
           )}
           <Controller name="minimo" control={control} render={({ field }) => <CampoDinero etiqueta="Stock mínimo" valor={field.value} onCambiar={field.onChange} error={errors.minimo?.message} ayuda="Te avisamos cuando baje de aquí." />} />
         </div>
-        {editando && <p className="-mt-2 text-xs text-muted">El stock solo cambia con ventas, entradas y ajustes, para que siempre quede registro del porqué.</p>}
+        )}
+        {editando && watch('controlaStock') && <p className="-mt-2 text-xs text-muted">El stock solo cambia con ventas, entradas y ajustes, para que siempre quede registro del porqué.</p>}
 
         <div>
           <span className="mb-1.5 block text-sm font-medium text-muted">Foto (opcional)</span>

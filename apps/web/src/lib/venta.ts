@@ -8,9 +8,13 @@ import type { Producto } from '../mock/catalogo'
 export interface LineaCarrito {
   producto: Producto
   cantidad: number
+  /** Venta POR MONTO de una sección: el valor lo escribe quien vende (no es el precio de un producto). */
+  monto?: number
+  /** Identifica la línea (las ventas por monto de una misma sección no se suman entre sí). */
+  uid?: string
 }
 
-export const subtotal = (l: LineaCarrito) => l.producto.precio * l.cantidad
+export const subtotal = (l: LineaCarrito) => (l.monto ?? l.producto.precio) * l.cantidad
 
 export const totalVenta = (lineas: LineaCarrito[]) => lineas.reduce((suma, l) => suma + subtotal(l), 0)
 

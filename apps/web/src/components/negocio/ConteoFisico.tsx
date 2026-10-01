@@ -6,7 +6,7 @@ import { useAviso } from '../ui/Avisos'
 import { mensajeDe } from '../../api/cliente'
 import { useEnvioUnico } from '../../lib/envio'
 import { useCatalogo } from '../../data/contexto'
-import { buscar } from '../../lib/busqueda'
+import { buscar, llevaInventario } from '../../lib/busqueda'
 import { revisarConteo } from '../../lib/inventario'
 import { Miniatura } from './Miniatura'
 
@@ -31,7 +31,7 @@ export function ConteoFisico({ abierto, onCerrar }: Props) {
     if (abierto) { setEscritos({}); setConsulta(''); setCategoria('todas'); setPaso('contar'); setMotivo('Conteo físico del inventario') }
   }, [abierto])
 
-  const activos = useMemo(() => productos.filter((p) => p.activo), [productos])
+  const activos = useMemo(() => productos.filter((p) => p.activo && llevaInventario(p)), [productos])
   const visibles = useMemo(() => {
     const porCat = categoria === 'todas' ? activos : activos.filter((p) => p.categoriaId === categoria)
     return (consulta.trim() ? buscar(porCat, consulta) : [...porCat].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')))

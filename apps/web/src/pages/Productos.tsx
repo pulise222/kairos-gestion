@@ -177,7 +177,9 @@ export function Productos() {
                   <div className="mt-2 flex items-end justify-between gap-2">
                     <div>
                       <p className="tabular text-lg font-semibold leading-none">{pesos(p.precio)}</p>
-                      {esDueno && <p className="tabular mt-1 text-xs text-muted">costo {pesos(p.costo)} · <span className={m.pesos < 0 ? 'text-bad' : 'text-ok'}>{m.porcentaje} %</span></p>}
+                      {esDueno && (p.costo === 0
+                        ? <p className="mt-1 text-xs font-medium text-warn">Falta el costo (para calcular la ganancia)</p>
+                        : <p className="tabular mt-1 text-xs text-muted">costo {pesos(p.costo)} · <span className={m.pesos < 0 ? 'text-bad' : 'text-ok'}>{m.porcentaje} %</span></p>)}
                     </div>
                     <span className="flex items-center gap-1.5 text-sm">
                       <AnilloStock stock={p.stock} minimo={Math.max(p.minimo, 1)} tamano="size-7" />

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import { Check, ChevronDown, Minus, Plus, Receipt, Search, ShoppingBag, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, Coins, Lightbulb, Minus, PackagePlus, Plus, Search, ShoppingBag, Trash2, X } from 'lucide-react'
 import { CifraAnimada } from '../components/negocio/CifraAnimada'
+import { ProductoRapido } from '../components/negocio/ProductoRapido'
 import { ProductoTarjeta } from '../components/negocio/ProductoTarjeta'
+import { VentaPorMonto } from '../components/negocio/VentaPorMonto'
 import { Button } from '../components/ui/Button'
 import { useAviso } from '../components/ui/Avisos'
 import { Dialogo } from '../components/ui/Dialogo'
@@ -10,14 +12,14 @@ import { ErrorApi, mensajeDe } from '../api/cliente'
 import { claveParaIntento, useEnvioUnico } from '../lib/envio'
 import type { IntentoVenta } from '../lib/envio'
 import { pesos } from '../lib/dinero'
-import { buscar } from '../lib/busqueda'
+import { buscar, llevaInventario } from '../lib/busqueda'
 import { faltante, puedeConfirmar, subtotal, totalVenta, unidades, vueltas } from '../lib/venta'
 import type { LineaCarrito } from '../lib/venta'
 import { useAjustes } from '../ajustes/contexto'
 import { useCatalogo } from '../data/contexto'
 import type { ResultadoVenta } from '../data/contexto'
 import { configVenta } from '../mock/catalogo'
-import type { Producto } from '../mock/catalogo'
+import type { Categoria, Producto } from '../mock/catalogo'
 
 
 export function Venta() {
@@ -25,7 +27,7 @@ export function Venta() {
   const { ajustes } = useAjustes()
   const permitirSinStock = ajustes.permitirVentaSinStock
   // Catálogo compartido con Productos e Inventario: al vender, el stock baja en todas las pantallas.
-  const { productos: todos, categorias, registrarVenta } = useCatalogo()
+  const { productos: todos, categorias, registrarVenta, productoVentaRapida } = useCatalogo()
   const productos = useMemo(() => todos.filter((p) => p.activo), [todos]) // los desactivados no se venden
   const [lineasBase, setLineas] = useState<LineaCarrito[]>([])
   const [consulta, setConsulta] = useState('')
@@ -38,6 +40,11 @@ export function Venta() {
   const [resumen, setResumen] = useState<ResultadoVenta | null>(null)
   const [confirmandoCancelar, setConfirmandoCancelar] = useState(false)
   const [hojaAbierta, setHojaAbierta] = useState(false) // carrito como hoja inferior en celular
+  const [porMonto, setPorMonto] = useState(false)
+  const [rapido, setRapido] = useState(false)
+  // La guía de tres pasos se muestra hasta que la persona la cierre (queda recordado en este equipo).
+  const [guiaCerrada, setGuiaCerrada] = useState(() => { try { return localStorage.getItem('kairos-guia-venta') === 'cerrada' } catch { return false } })
+  const cerrarGuia = () => { setGuiaCerrada(true); try { localStorage.setItem('kairos-guia-venta', 'cerrada') } catch { /* sin almacenamiento: reaparecerá */ } }
 
   const buscador = useRef<HTMLInputElement>(null)
   const campoPago = useRef<HTMLInputElement>(null)
@@ -56,18 +63,20 @@ export function Venta() {
     () => buscar(productos.filter((p) => categoria === 'todas' || p.categoriaId === categoria), consulta),
     [productos, categoria, consulta],
   )
-  const bloqueado = (p: Producto) => p.stock <= 0 && !permitirSinStock
+  // Un producto SIN control de inventario nunca se bloquea por stock.
+  const bloqueado = (p: Producto) => llevaInventario(p) && p.stock <= 0 && !permitirSinStock
 
-  const enCarrito = (id: number) => lineas.find((l) => l.producto.id === id)?.cantidad ?? 0
+  // Las líneas «por monto» no cuentan como unidades del producto.
+  const enCarrito = (id: number) => lineas.find((l) => l.producto.id === id && l.monto === undefined)?.cantidad ?? 0
 
   const agregar = (p: Producto) => {
     if (bloqueado(p)) return avisar(`"${p.nombre}" está agotado.`, 'alerta')
-    if (enCarrito(p.id) + 1 > p.stock && !permitirSinStock) {
+    if (llevaInventario(p) && enCarrito(p.id) + 1 > p.stock && !permitirSinStock) {
       return avisar(`Solo hay ${p.stock} unidades de "${p.nombre}".`, 'alerta')
     }
     setLineas((ls) =>
-      ls.some((l) => l.producto.id === p.id)
-        ? ls.map((l) => (l.producto.id === p.id ? { ...l, cantidad: l.cantidad + 1 } : l))
+      ls.some((l) => l.producto.id === p.id && l.monto === undefined)
+        ? ls.map((l) => (l.producto.id === p.id && l.monto === undefined ? { ...l, cantidad: l.cantidad + 1 } : l))
         : [...ls, { producto: p, cantidad: 1 }],
     )
     setUltimoAgregado((u) => ({ id: p.id, n: (u?.n ?? 0) + 1 })) // dispara el destello de la fila
@@ -75,12 +84,27 @@ export function Venta() {
 
   const cambiarCantidad = (p: Producto, delta: number) => {
     const nueva = enCarrito(p.id) + delta
-    if (nueva <= 0) return setLineas((ls) => ls.filter((l) => l.producto.id !== p.id))
-    if (nueva > p.stock && !permitirSinStock) return avisar(`Solo hay ${p.stock} unidades de "${p.nombre}".`, 'alerta')
-    setLineas((ls) => ls.map((l) => (l.producto.id === p.id ? { ...l, cantidad: nueva } : l)))
+    if (nueva <= 0) return setLineas((ls) => ls.filter((l) => !(l.producto.id === p.id && l.monto === undefined)))
+    if (llevaInventario(p) && nueva > p.stock && !permitirSinStock) return avisar(`Solo hay ${p.stock} unidades de "${p.nombre}".`, 'alerta')
+    setLineas((ls) => ls.map((l) => (l.producto.id === p.id && l.monto === undefined ? { ...l, cantidad: nueva } : l)))
   }
 
-  const quitar = (id: number) => setLineas((ls) => ls.filter((l) => l.producto.id !== id))
+  const idLinea = (l: LineaCarrito) => l.uid ?? String(l.producto.id)
+  const quitar = (id: string) => setLineas((ls) => ls.filter((l) => idLinea(l) !== id))
+
+  /** Venta por monto: el servidor entrega el producto interno de la sección y la línea lleva el valor escrito. */
+  const agregarMonto = async (seccion: Categoria, monto: number) => {
+    const interno = await productoVentaRapida(seccion.id)
+    setLineas((ls) => [...ls, { producto: interno, cantidad: 1, monto, uid: `m${Date.now()}-${ls.length}` }])
+    setHojaAbierta(true) // en celular se abre el carrito para que se vea lo agregado
+  }
+
+  /** Producto recién creado desde la caja: entra a la venta sin buscarlo otra vez. */
+  const alCrearRapido = (p: Producto) => {
+    setConsulta('')
+    setSeleccion(0)
+    setLineas((ls) => [...ls, { producto: p, cantidad: 1 }])
+  }
 
   // Teclado del buscador: flechas para moverse, Enter agrega, Esc limpia.
   const alTeclear = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -124,7 +148,7 @@ export function Venta() {
   const confirmar = async () => {
     if (!puede) return
     await ejecutar(async () => {
-      const envio = lineas.map((l) => ({ productoId: l.producto.id, cantidad: l.cantidad }))
+      const envio = lineas.map((l) => ({ productoId: l.producto.id, cantidad: l.cantidad, ...(l.monto !== undefined ? { precio: l.monto } : {}) }))
       // Cada intento lleva su clave: si la red se corta justo al enviar y el cajero reintenta, el servidor reconoce la venta y no la duplica.
       intento.current = claveParaIntento(intento.current, JSON.stringify([envio, pagado]))
       try {
@@ -163,7 +187,22 @@ export function Venta() {
     <div className="grid gap-4 pb-24 lg:grid-cols-[minmax(0,1fr)_26rem] lg:pb-0">
       {/* ───────── Izquierda: buscar y elegir ───────── */}
       <section className="min-w-0 space-y-4">
-        <div className="glass flex h-14 items-center gap-3 rounded-full px-5 focus-within:ring-2 focus-within:ring-accent/60">
+        {!guiaCerrada && (
+          <div className="glass flex items-start gap-3 rounded-2xl p-4 text-sm" role="note">
+            <Lightbulb className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">Así se vende, en 3 pasos</p>
+              <ol className="mt-1 list-inside list-decimal space-y-0.5 text-muted">
+                <li><b className="text-ink">Toca el producto</b> (o escribe su nombre arriba). Si no está, usa «Por monto» o «Agregar producto nuevo».</li>
+                <li>En el cuadro de la derecha escribe <b className="text-ink">con cuánto paga</b> el cliente (o toca un billete).</li>
+                <li>Pulsa <b className="text-ink">Confirmar venta</b>.</li>
+              </ol>
+            </div>
+            <button onClick={cerrarGuia} className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/10">Entendido</button>
+          </div>
+        )}
+        <div className="flex gap-3">
+        <div className="glass flex h-14 min-w-0 flex-1 items-center gap-3 rounded-full px-5 focus-within:ring-2 focus-within:ring-accent/60">
           <Search className="size-5 text-muted" />
           <input
             ref={buscador}
@@ -180,6 +219,10 @@ export function Venta() {
               <X className="size-4" />
             </button>
           )}
+        </div>
+        <Button variante="secundario" className="h-14 shrink-0 rounded-full px-5" onClick={() => setPorMonto(true)}>
+          <Coins className="size-5" /> <span className="hidden sm:inline">Por monto</span><span className="sm:hidden">Monto</span>
+        </Button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Categorías">
@@ -202,6 +245,7 @@ export function Venta() {
           <div className="grid place-items-center rounded-[var(--radius-card)] border border-dashed border-line py-16 text-center text-muted">
             <p className="display text-2xl text-ink">Sin resultados</p>
             <p className="mt-1 text-sm">Prueba con otra parte del nombre o escanea el código.</p>
+            <Button className="mt-5" onClick={() => setRapido(true)}><PackagePlus className="size-5" /> {consulta.trim() ? `Agregar «${consulta.trim()}» como producto nuevo` : 'Agregar producto nuevo'}</Button>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
@@ -216,6 +260,11 @@ export function Venta() {
               />
             ))}
           </div>
+        )}
+        {resultados.length > 0 && (
+          <button onClick={() => setRapido(true)} className="flex items-center gap-2 rounded-full px-1 py-1 text-sm font-medium text-accent hover:underline">
+            <PackagePlus className="size-4" /> ¿No está el producto? Agregar uno nuevo
+          </button>
         )}
         <p className="hidden text-xs text-muted lg:block">
           <kbd className="rounded border border-line px-1">↑↓←→</kbd> moverse · <kbd className="rounded border border-line px-1">Enter</kbd> agregar ·{' '}
@@ -262,7 +311,18 @@ export function Venta() {
             </div>
           ) : (
             <ul>
-              {lineas.map((l) => (
+              {lineas.map((l) => l.monto !== undefined ? (
+                <li key={l.uid} className="flex items-center gap-2 rounded-xl border-b border-line py-2.5 last:border-0">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{l.producto.nombre.replace('Venta por monto · ', '')}</p>
+                    <p className="text-xs text-muted">Por monto</p>
+                  </div>
+                  <span className="tabular w-[5.2rem] text-right text-sm font-semibold">{pesos(subtotal(l))}</span>
+                  <button onClick={() => quitar(idLinea(l))} className="grid size-8 place-items-center rounded-full text-muted hover:text-bad" aria-label={`Quitar monto de ${l.producto.nombre}`}>
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ) : (
                 <li
                   key={`${l.producto.id}-${ultimoAgregado?.id === l.producto.id ? ultimoAgregado.n : 0}`}
                   className={`flex items-center gap-2 rounded-xl border-b border-line py-2.5 last:border-0 ${ultimoAgregado?.id === l.producto.id ? 'destello' : ''}`}
@@ -281,7 +341,7 @@ export function Venta() {
                     </button>
                   </div>
                   <span className="tabular w-[5.2rem] text-right text-sm font-semibold">{pesos(subtotal(l))}</span>
-                  <button onClick={() => quitar(l.producto.id)} className="grid size-8 place-items-center rounded-full text-muted hover:text-bad" aria-label={`Quitar ${l.producto.nombre}`}>
+                  <button onClick={() => quitar(idLinea(l))} className="grid size-8 place-items-center rounded-full text-muted hover:text-bad" aria-label={`Quitar ${l.producto.nombre}`}>
                     <Trash2 className="size-4" />
                   </button>
                 </li>
@@ -345,6 +405,9 @@ export function Venta() {
         </div>
       </Dialogo>
 
+      <VentaPorMonto abierto={porMonto} onCerrar={() => setPorMonto(false)} onAgregar={agregarMonto} />
+      <ProductoRapido abierto={rapido} onCerrar={() => setRapido(false)} nombreInicial={consulta} onCreado={alCrearRapido} />
+
       {/* ───────── Venta registrada ───────── */}
       <Dialogo abierto={!!resumen} onCerrar={nuevaVenta} descartable={false}>
         {resumen && (
@@ -358,10 +421,7 @@ export function Venta() {
               <div className="flex items-end justify-between border-t border-line pt-2"><dt className="text-sm text-muted">Vueltas</dt><dd className="display tabular text-4xl text-ok">{pesos(resumen.vueltas)}</dd></div>
             </dl>
             <div className="mt-6 flex gap-2">
-              <Button variante="secundario" className="flex-1" onClick={() => avisar('La impresión de recibos se activa en la Fase 6.', 'info')}>
-                <Receipt className="size-4" /> Recibo
-              </Button>
-              <Button className="flex-1" autoFocus onClick={nuevaVenta}>Nueva venta</Button>
+              <Button grande className="flex-1" autoFocus onClick={nuevaVenta}>Nueva venta</Button>
             </div>
           </div>
         )}

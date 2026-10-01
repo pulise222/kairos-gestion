@@ -57,7 +57,7 @@ export function SeccionNegocio() {
             descripcion="Útil si aún no cargas todo el inventario. El stock puede quedar en negativo y se nota en el historial."
           />
           <div className="max-w-xs">
-            <CampoDinero etiqueta="Meta de ventas por día" valor={ajustes.metaDiaria} onCambiar={(v) => cambiar({ metaDiaria: v })} ayuda="Alimenta el medidor del Panel. Pon 0 para no usar meta." />
+            <CampoDinero etiqueta="Meta de ventas por día (opcional)" valor={ajustes.metaDiaria} onCambiar={(v) => cambiar({ metaDiaria: v })} ayuda="Alimenta el medidor del Panel. Pon 0 si no quieres usar meta; también puedes cambiarla desde el Panel." />
           </div>
         </div>
       </Bloque>

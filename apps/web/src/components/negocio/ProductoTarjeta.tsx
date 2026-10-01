@@ -17,7 +17,7 @@ export function ProductoTarjeta({ producto: p, categoria, seleccionado, bloquead
     <button
       onClick={onAgregar}
       aria-disabled={bloqueado}
-      aria-label={`${p.nombre}, ${pesos(p.precio)}, ${p.stock} en stock${bloqueado ? ', agotado' : ''}`}
+      aria-label={`${p.nombre}, ${pesos(p.precio)}${p.controlaStock === false ? '' : `, ${p.stock} en stock`}${bloqueado ? ', agotado' : ''}`}
       className={`group relative flex flex-col gap-3 rounded-2xl border bg-panel p-3 text-left transition active:scale-[0.98] ${
         seleccionado ? 'border-accent ring-2 ring-accent/40' : 'border-line hover:border-accent/60'
       } ${bloqueado ? 'opacity-55 grayscale' : ''}`}
@@ -28,10 +28,12 @@ export function ProductoTarjeta({ producto: p, categoria, seleccionado, bloquead
         <p className="tabular truncate text-[11px] text-muted">N.º {p.codigo}</p>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <span className="tabular text-sm font-semibold">{pesos(p.precio)}</span>
-          <span className="flex items-center gap-1 text-xs text-muted">
-            <AnilloStock stock={p.stock} minimo={p.minimo} tamano="size-4" />
-            <span className="tabular">{p.stock}</span>
-          </span>
+          {p.controlaStock !== false && (
+            <span className="flex items-center gap-1 text-xs text-muted">
+              <AnilloStock stock={p.stock} minimo={p.minimo} tamano="size-4" />
+              <span className="tabular">{p.stock}</span>
+            </span>
+          )}
         </div>
       </div>
       {bloqueado && <span className="absolute right-2 top-2 rounded-full bg-bad px-2 py-0.5 text-[11px] font-semibold text-white">Agotado</span>}

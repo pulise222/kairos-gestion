@@ -5,7 +5,7 @@ import { aCategoria, aCompra, aMovimiento, aProducto, aProveedor, cuerpoProducto
 describe('traducción API → front', () => {
   it('producto: renombra stockMinimo y vuelve texto el id de categoría', () => {
     expect(aProducto({ id: 5, nombre: 'Gaseosa', codigo: '101', categoriaId: 3, proveedorId: 2, costo: 3200, precio: 4500, stock: 7, stockMinimo: 12, activo: true })).toEqual({
-      id: 5, nombre: 'Gaseosa', codigo: '101', descripcion: '', imagen: null, categoriaId: '3', proveedorId: 2, costo: 3200, precio: 4500, stock: 7, minimo: 12, activo: true,
+      id: 5, nombre: 'Gaseosa', codigo: '101', descripcion: '', imagen: null, controlaStock: true, categoriaId: '3', proveedorId: 2, costo: 3200, precio: 4500, stock: 7, minimo: 12, activo: true,
     })
   })
 
@@ -50,6 +50,13 @@ describe('traducción front → API', () => {
     expect(cuerpoProductoCambios({ descripcion: '   ' })).toEqual({ descripcion: null })
     expect(cuerpoProductoCambios({ descripcion: ' Sin gas ' })).toEqual({ descripcion: 'Sin gas' })
     expect(cuerpoProductoCambios({ precio: 1 })).not.toHaveProperty('codigo')
+  })
+
+  it('el control de inventario viaja al crear solo si se indicó, y al editar si cambió', () => {
+    expect(cuerpoProductoNuevo({ ...datos }, 0)).not.toHaveProperty('controlaStock') // manda el ajuste general del servidor
+    expect(cuerpoProductoNuevo({ ...datos, controlaStock: false }, 0)).toMatchObject({ controlaStock: false })
+    expect(cuerpoProductoCambios({ controlaStock: true })).toEqual({ controlaStock: true })
+    expect(aProducto({ id: 1, nombre: 'X', codigo: 'c', categoriaId: 1, proveedorId: null, precio: 1, stock: 0, stockMinimo: 0, activo: true, controlaStock: false }).controlaStock).toBe(false)
   })
 
   it('editar: solo viaja lo que cambió y NUNCA el stock', () => {

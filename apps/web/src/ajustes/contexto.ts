@@ -13,11 +13,12 @@ export const esquemaAjustes = z.object({
   direccion: z.string().max(120).catch('Cra 10 # 20-30, Bogotá'),
   telefono: z.string().max(30).catch('300 123 4567'),
   // Reglas de venta
-  permitirVentaSinStock: z.boolean().catch(false),
-  metaDiaria: z.number().int().min(0).max(100_000_000).catch(1_800_000),
+  permitirVentaSinStock: z.boolean().catch(true),
+  controlarStockPorDefecto: z.boolean().catch(false),
+  metaDiaria: z.number().int().min(0).max(100_000_000).catch(0), // la meta es opcional: sin definir = 0
   // Apariencia
   acento: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().catch(null), // null = el del tema
-  patron: z.enum(['curvas', 'puntos', 'ondas']).catch('curvas'),
+  patron: z.enum(['curvas', 'puntos', 'ondas', 'costura']).catch('costura'),
   intensidad: z.number().min(0).max(100).catch(50),
   // Módulos
   proveedoresActivo: z.boolean().catch(true),
