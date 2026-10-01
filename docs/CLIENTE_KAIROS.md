@@ -13,12 +13,13 @@
 ## Cómo trabajan hoy: el cuaderno
 Cuatro columnas por sección, una suma por venta (`12000+21000+9000+`) y una línea por día con la fecha. Al cierre del día validan que **el dinero cuadre con lo anotado** (la palabra rayada).
 
-| Columna del cuaderno | Sección propuesta | Proveedor |
-| --- | --- | --- |
-| Pegante / Solución | Pegantes y soluciones | Fénix |
-| One Way / Hilos | One Way e hilos | (por definir) |
-| Materiales / Sesgos | Materiales y sesgos | varios |
-| Hilos / Agujas | Hilos y agujas | (por definir) |
+> **Decisión (no se copia el cuaderno):** las secciones del sistema NO replican las 4 columnas. Se crean solo con lo que se entendió en las fotos y el cliente agrega el resto
+> (productos, proveedores y más secciones). «One Way» es una marca de pegante, no una sección.
+
+**Secciones iniciales** (renombrables, desactivables y ampliables en *Configuración → Categorías*):
+1. Pegantes · 2. Soluciones · 3. Tintes y marroquinera · 4. Hilos · 5. Agujas · 6. Sesgos y elásticos · 7. Materiales
+
+Proveedores y productos: **los crea el cliente** (no se cargan datos inventados).
 
 Los números escritos en los estantes y frascos: algunos son **precios**.
 
