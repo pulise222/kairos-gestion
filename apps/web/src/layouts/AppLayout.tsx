@@ -5,12 +5,12 @@ import {
 } from 'lucide-react'
 import { useAjustes } from '../ajustes/contexto'
 import { Button } from '../components/ui/Button'
+import { MenuCuenta } from '../components/negocio/MenuCuenta'
 import { CambiarContrasena } from '../components/negocio/CambiarContrasena'
 import { Logo } from '../components/ui/Logo'
 import { useCatalogo } from '../data/contexto'
 import { Fondo } from '../design/Fondo'
 import { estadoCopia } from '../lib/copias'
-import { iniciales } from '../lib/usuarios'
 import { Cargando } from '../sesion/RutaProtegida'
 import { useSesion } from '../sesion/contexto'
 import { useTema } from '../theme/ThemeProvider'
@@ -86,10 +86,10 @@ export function AppLayout() {
             {tema === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </button>
           {usuario && (
-            <span className="glass hidden h-11 items-center gap-2 rounded-full pl-1.5 pr-4 text-sm sm:flex" title={`${usuario.nombre} · ${esDueno ? 'Dueño' : 'Vendedor'}`}>
-              <span className="grid size-8 place-items-center rounded-full bg-accent/15 text-xs font-bold text-accent" aria-hidden="true">{iniciales(usuario.nombre)}</span>
-              <span className="max-w-28 truncate">{usuario.nombre.split(' ')[0]}</span>
-            </span>
+            <MenuCuenta
+              nombre={usuario.nombre} usuario={usuario.usuario} esDueno={esDueno}
+              onCambiarClave={() => setCuenta(true)} onConfiguracion={() => navegar('/configuracion')} onSalir={cerrarSesion}
+            />
           )}
           <button onClick={() => setCuenta(true)} className="glass grid size-11 place-items-center rounded-full text-ink md:hidden" aria-label="Cambiar mi contraseña">
             <KeyRound className="size-5" />
