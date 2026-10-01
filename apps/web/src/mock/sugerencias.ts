@@ -1,20 +1,17 @@
-/* Categorías sugeridas en el asistente de primer arranque. Las primeras cinco son las de la tienda piloto. */
+/* Categorías sugeridas en el asistente de primer arranque (en este proyecto: las secciones de Kairos). */
+// Las siete secciones con las que Kairos organiza sus insumos (el cliente puede cambiarlas, quitarlas o agregar más).
 export const CATEGORIAS_SUGERIDAS = [
-  { nombre: 'Bebidas', color: '#2f7fb8' },
-  { nombre: 'Aseo', color: '#2e9e8f' },
-  { nombre: 'Abarrotes', color: '#b8892a' },
-  { nombre: 'Lácteos', color: '#7a6bb8' },
-  { nombre: 'Snacks', color: '#c2543f' },
-  { nombre: 'Carnes y embutidos', color: '#a8443c' },
-  { nombre: 'Frutas y verduras', color: '#4d9a45' },
-  { nombre: 'Panadería', color: '#c08a4a' },
-  { nombre: 'Licores', color: '#7c3a5a' },
-  { nombre: 'Papelería', color: '#4a6fa5' },
-  { nombre: 'Mascotas', color: '#8a7a3a' },
-  { nombre: 'Droguería', color: '#3a8a8a' },
+  { nombre: 'Pegantes', color: '#b8892a' },
+  { nombre: 'Soluciones', color: '#2f7fb8' },
+  { nombre: 'Tintes y marroquinera', color: '#7c3a5a' },
+  { nombre: 'Hilos', color: '#4d9a45' },
+  { nombre: 'Agujas', color: '#2e9e8f' },
+  { nombre: 'Sesgos y elásticos', color: '#c2543f' },
+  { nombre: 'Materiales', color: '#7a6bb8' },
 ] as const
 
-export const PREDETERMINADAS = ['Bebidas', 'Aseo', 'Abarrotes', 'Lácteos', 'Snacks']
+// Vienen marcadas todas, para que el primer arranque sea solo pulsar «Siguiente».
+export const PREDETERMINADAS: string[] = CATEGORIAS_SUGERIDAS.map((c) => c.nombre)
 
 // Colores para las categorías que el dueño escribe a mano (se reparten en orden).
 export const COLORES_PROPIOS = ['#5b8a3a', '#a85a8a', '#3a6a9a', '#9a6a3a', '#6a5a9a', '#3a9a7a']

@@ -1,10 +1,29 @@
-# Nivel · Control de tienda
+# Servicios Kairos · Sistema de ventas e inventario
 
-Sistema de **ventas, inventario y ganancias** para tiendas y pequeños negocios. Pensado para usarse todos los días y rápido, desde el computador del mostrador, una tablet o el celular, con **modo claro y oscuro**.
+Sistema **a la medida** para **Servicios Kairos** (insumos de calzado), construido sobre la base [Nivel](https://github.com/pulise222/nivel-gestion-negocio). **Repositorio privado: no compartir.**
 
-Se instala en **un solo PC del negocio** (funciona sin internet, dentro de la red del local) y se puede personalizar con la marca de cada cliente sin tocar código.
+Se instala en el portátil de la tienda, funciona **sin internet** y está pensado para que lo use cualquier persona, incluso quien usa el computador por primera vez: letra grande ajustable, pasos guiados en pantalla y **modo claro y oscuro**.
 
-> Proyecto de portafolio de Juan Sebastián Pulido Bojaca. Diseño, reglas de negocio y pruebas pensados como un producto real.
+## Lo propio de Kairos
+- **Venta por monto:** se escribe la sección y el valor (`12000 + 9000`); no hay que buscar el producto.
+- **Productos sin control de inventario** y venta **nunca bloqueada** por falta de stock.
+- **Producto al vuelo:** si no existe, se crea desde la misma venta.
+- **Cierre del día:** cuadre de caja (base + ventas en efectivo vs. lo contado) con historial.
+- **Excel de respaldo diario** y copias automáticas (con segunda carpeta/Drive).
+- **Meta diaria opcional** en el Panel; **comentarios** de las vendedoras durante el piloto.
+- Identidad propia: logo, paleta «Tinta y carmesí» y barra lateral de cristal (`apps/api/personalizacion`).
+
+## Documentos
+- Manual de usuario (PDF): `docs/manual/Manual de uso - Servicios Kairos.pdf`
+- Instalación en el portátil: `docs/INSTALACION.md`
+- Guía de pruebas: `docs/PRUEBAS_KAIROS.md`
+- Ficha del cliente y decisiones: `docs/CLIENTE_KAIROS.md`
+
+## Desarrollo local
+`./iniciar-desarrollo.ps1` levanta base de datos, API (3002) y pantalla (5184). Pruebas: `npm test` en `apps/api` y `npx vitest run` en `apps/web`.
+
+---
+# Sobre la base (Nivel)
 
 ## Qué hace
 | Módulo | Qué resuelve |
