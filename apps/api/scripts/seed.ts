@@ -10,6 +10,9 @@
   Es determinista (misma semilla = mismos datos) y se niega a correr si no es la base "nivel" de desarrollo.
 */
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'node:crypto'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs'
+import { join } from 'node:path'
 import { crearPrisma } from '../src/db.js'
 import { CONFIG_POR_DEFECTO } from '../src/modules/configuracion.js'
 import { normalizar } from '../src/lib/texto.js'
@@ -109,11 +112,26 @@ const catalogo: [string, string, string, number, number, number, number, number]
   ['7701001000017', 'Chocolatina', 'Snacks', 3, 1800, 1200, 60, 20],
 ]
 
+// Fotos de ejemplo: se toman de las de la demo (apps/web/public/productos) y se copian a la carpeta de fotos del sistema
+// con nombres generados, igual que cuando el dueño sube una foto. Se limpian antes las fotos viejas de otras cargas.
+const carpetaFotos = process.env.UPLOADS_DIR ?? './uploads'
+const carpetaOrigen = join(import.meta.dirname, '..', '..', 'web', 'public', 'productos')
+mkdirSync(carpetaFotos, { recursive: true })
+for (const f of readdirSync(carpetaFotos)) if (/^[0-9a-f]{24}\.(png|jpg|webp)$/.test(f)) unlinkSync(join(carpetaFotos, f))
+const nombreArchivo = (n: string) => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+function fotoDe(nombre: string): string | null {
+  const origen = join(carpetaOrigen, nombreArchivo(nombre) + '.webp')
+  if (!existsSync(origen)) return null
+  const archivo = `${randomBytes(12).toString('hex')}.webp`
+  copyFileSync(origen, join(carpetaFotos, archivo))
+  return `/uploads/${archivo}`
+}
+
 interface P { id: number; nombre: string; precio: number; costo: number; minimo: number; proveedorId: number; objetivo: number; peso: number }
 const productos: P[] = []
 for (const [codigo, nombre, cat, prov, precio, costo, objetivo, minimo] of catalogo) {
   const p = await prisma.producto.create({
-    data: { codigo, nombre, busqueda: normalizar(nombre), categoriaId: categorias.get(cat)!, proveedorId: proveedores[prov - 1]!, precio, costo, stock: 0, stockMinimo: minimo },
+    data: { codigo, nombre, busqueda: normalizar(nombre), categoriaId: categorias.get(cat)!, proveedorId: proveedores[prov - 1]!, precio, costo, stock: 0, stockMinimo: minimo, imagen: fotoDe(nombre) },
   })
   productos.push({ id: p.id, nombre, precio, costo, minimo, proveedorId: proveedores[prov - 1]!, objetivo, peso: ((p.id * 37) % 11) + 3 })
 }
