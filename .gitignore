@@ -8,3 +8,6 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.demo
+
+# Material del cliente (fotos del cuaderno, precios, logo original): datos privados, nunca van al repositorio
+material-cliente/

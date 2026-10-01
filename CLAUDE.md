@@ -31,3 +31,12 @@ Juan Sebastián Pulido Bojaca: tecnólogo SENA, excelente en HTML/CSS, con exper
 - Evitar `alert/confirm/prompt` del navegador: usar avisos y diálogos propios.
 - No guardar dinero en decimales flotantes.
 - Una demo pública (solo front con datos simulados) es muy valiosa para el portafolio.
+
+
+---
+# Proyecto del cliente: Servicios Kairos (esta carpeta)
+Esta carpeta es una copia **privada** del sistema base Nivel adaptada a un cliente real (insumos de calzado). Todo el trabajo del cliente se hace AQUÍ,
+no en `control-tienda` ni en `nivel-gestion-negocio-demo` (son de portafolio y públicos). Antes de empezar lee `docs/CLIENTE_KAIROS.md`.
+- Nunca subir `material-cliente/`, claves, `.env`, ni datos o fotos reales del negocio a repositorios públicos.
+- Usuarios no técnicos (una persona mayor sin experiencia con computador): lo más simple posible, letra grande, mensajes claros, nada de jerga.
+- El remoto `base` apunta al sistema base: se pueden traer mejoras con `git fetch base` y `git merge base/main`.
