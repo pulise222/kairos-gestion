@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kairos · 3 opciones de paleta</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#1d2128;color:#eee;font:15px/1.5 "Segoe UI",system-ui,sans-serif;padding:28px}
+  h1{font-size:22px;margin:0 0 4px} .sub{color:#aab;margin:0 0 22px;max-width:900px}
+  .fila{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:22px}
+  .op{background:var(--bg);color:var(--text);border-radius:18px;padding:18px;border:1px solid var(--line)}
+  .op h2{margin:0;font:700 20px Georgia,serif} .op .quien{color:var(--muted);font-size:13px;margin:2px 0 12px}
+  .sw{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .sw span{flex:1 1 60px;min-width:60px;border-radius:10px;padding:18px 6px 6px;font-size:10.5px;text-align:center;border:1px solid rgba(0,0,0,.12)}
+  .app{display:grid;grid-template-columns:60px minmax(0,1fr);border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+  .side{background:var(--side);padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .side i{width:36px;height:36px;border-radius:10px;background:var(--sideItem);display:block}
+  .side i.on{background:var(--accent)}
+  .main{padding:12px;min-width:0}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .top img{height:46px;mix-blend-mode:multiply}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
+  .g{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:10px}
+  .prods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .p{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px;font-size:11.5px;min-width:0}
+  .p b{display:block;font-size:12.5px} .p .f{height:44px;border-radius:8px;background:var(--tile);margin-bottom:6px}
+  .p .st{font-size:11px;color:var(--muted)}
+  .cart{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13px}
+  .tot{font:700 21px Georgia,serif;margin:6px 0}
+  .btn{display:block;text-align:center;border-radius:12px;padding:11px 4px;font-weight:700;font-size:13.5px;margin-top:8px}
+  .pri{background:var(--accent);color:var(--onAccent)} .sec{background:var(--tile);color:var(--text);border:1px solid var(--line)}
+  .tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .tag{font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px}
+  .ok{background:var(--okBg);color:var(--ok)} .warn{background:var(--warnBg);color:var(--warn)} .bad{background:var(--badBg);color:var(--bad)}
+  .nota{margin-top:12px;font-size:13px;color:var(--muted)} .nota b{color:var(--text)}
+  .oscuro{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--dBg);color:var(--dText);display:flex;gap:10px;align-items:center;font-size:12.5px;border:1px solid var(--dLine)}
+  .oscuro .m{background:var(--dPanel);border:1px solid var(--dLine);border-radius:8px;padding:6px 10px;flex:1}
+  .oscuro .bt{background:var(--dAccent);color:var(--dOn);border-radius:8px;padding:6px 10px;font-weight:700}
+  /* ───── A ───── */
+  #a{--bg:#f1ece1;--panel:#fbf8f1;--line:#d3c9b6;--text:#141d27;--muted:#5b6470;--accent:#a9191b;--onAccent:#fff;--tile:#e6dfd0;--side:#141d27;--sideItem:#2a3646;
+     --ok:#25704a;--okBg:#dcefe3;--warn:#8a5a00;--warnBg:#f6e5bd;--bad:#8f1d12;--badBg:#f6d9d4;
+     --dBg:#0f151d;--dPanel:#18212d;--dLine:#2a3646;--dText:#eef0f3;--dAccent:#e0494b;--dOn:#fff}
+  /* ───── B ───── */
+  #b{--bg:#f3e7dc;--panel:#fffaf5;--line:#dcc7b4;--text:#2a1b17;--muted:#6a5750;--accent:#c8372a;--onAccent:#fff;--tile:#ecd9c8;--side:#3a2620;--sideItem:#5a3d33;
+     --ok:#2e7048;--okBg:#dfeedd;--warn:#8a5a00;--warnBg:#f8e2b0;--bad:#8f1d12;--badBg:#f6d9d4;
+     --dBg:#1d1412;--dPanel:#2a1d19;--dLine:#43302a;--dText:#f6ece6;--dAccent:#e2574a;--dOn:#fff}
+  /* ───── C ───── */
+  #c{--bg:#e9e6df;--panel:#fcfbf8;--line:#cfcabd;--text:#141d27;--muted:#586270;--accent:#1b2a3d;--onAccent:#fff;--tile:#dcd9d0;--side:#fcfbf8;--sideItem:#e3e0d8;
+     --ok:#25704a;--okBg:#dcefe3;--warn:#8a5a00;--warnBg:#f6e5bd;--bad:#a9191b;--badBg:#f6d9d4;
+     --dBg:#0e141c;--dPanel:#17202b;--dLine:#273445;--dText:#eef0f3;--dAccent:#e0494b;--dOn:#fff}
+  #c .side i.on{background:#a9191b} #c .tot{color:#a9191b}
+</style>
+</head>
+<body>
+<h1>Servicios Kairos · elige la paleta del sistema</h1>
+<p class="sub">Las tres salen de los logos que usan: el rojo y el negro del logo actual (con cuero y la máquina dorada) y el azul-tinta con rojo carmesí del rediseño. Todas cumplen contraste de lectura cómoda (texto sobre fondo de 13 a 14 sobre 21; el mínimo recomendado es 4,5) y se muestran con letra y botones grandes, como será el «modo simple».</p>
+<div class="fila">
+
+<div class="op" id="a">
+  <h2>A · Tinta y carmesí</h2><div class="quien">Del rediseño · elegante, serio y muy legible</div>
+  <div class="sw"><span style="background:#141d27;color:#fff">Tinta<br>#141D27</span><span style="background:#a9191b;color:#fff">Carmesí<br>#A9191B</span><span style="background:#f1ece1">Crema<br>#F1ECE1</span><span style="background:#fbf8f1">Papel<br>#FBF8F1</span><span style="background:#d3c9b6">Borde<br>#D3C9B6</span></div>
+  <div class="app"><div class="side"><i class="on"></i><i></i><i></i><i></i></div><div class="main">
+    <div class="top"><img src="../material-cliente/logo-rediseno-v1.webp"><span class="chip">● Copia al día</span></div>
+    <div class="g"><div class="prods"><div class="p"><div class="f"></div><b>Pegante Fénix</b>$ 12.000<div class="st">Pegantes</div></div><div class="p"><div class="f"></div><b>Cono de hilo</b>$ 9.000<div class="st">Hilos</div></div><div class="p"><div class="f"></div><b>Thinner</b>$ 7.500<div class="st">Soluciones</div></div></div>
+    <div class="cart">Nueva venta<div class="tot">$ 28.500</div><div class="btn pri">Confirmar venta</div><div class="btn sec">Cancelar</div></div></div>
+    <div class="tags"><span class="tag ok">En stock</span><span class="tag warn">Stock bajo</span><span class="tag bad">Agotado</span></div>
+  </div></div>
+  <div class="oscuro"><div class="m">Modo oscuro</div><div class="bt">Confirmar</div></div>
+  <div class="nota"><b>Se siente:</b> como el rediseño del logo. Barra lateral oscura, fondo crema, acento carmesí. Es la más sobria y la que más se parece a una marca «seria». <b>Ojo:</b> el rojo es a la vez la marca y el botón principal; «Anular» se distingue por su ícono y su texto.</div>
+</div>
+
+<div class="op" id="b">
+  <h2>B · Rojo cuero</h2><div class="quien">Del logo actual · cálido, cercano y reconocible</div>
+  <div class="sw"><span style="background:#c8372a;color:#fff">Rojo<br>#C8372A</span><span style="background:#c58a1f;color:#fff">Dorado<br>#C58A1F</span><span style="background:#3a2620;color:#fff">Cuero<br>#3A2620</span><span style="background:#f3e7dc">Lino<br>#F3E7DC</span><span style="background:#fffaf5">Papel<br>#FFFAF5</span></div>
+  <div class="app"><div class="side"><i class="on"></i><i></i><i></i><i></i></div><div class="main">
+    <div class="top"><img src="../material-cliente/logo-rediseno-v1.webp"><span class="chip">● Copia al día</span></div>
+    <div class="g"><div class="prods"><div class="p"><div class="f"></div><b>Pegante Fénix</b>$ 12.000<div class="st">Pegantes</div></div><div class="p"><div class="f"></div><b>Cono de hilo</b>$ 9.000<div class="st">Hilos</div></div><div class="p"><div class="f"></div><b>Thinner</b>$ 7.500<div class="st">Soluciones</div></div></div>
+    <div class="cart">Nueva venta<div class="tot">$ 28.500</div><div class="btn pri">Confirmar venta</div><div class="btn sec">Cancelar</div></div></div>
+    <div class="tags"><span class="tag ok">En stock</span><span class="tag warn">Stock bajo</span><span class="tag bad">Agotado</span></div>
+  </div></div>
+  <div class="oscuro"><div class="m">Modo oscuro</div><div class="bt">Confirmar</div></div>
+  <div class="nota"><b>Se siente:</b> la más cálida y «de taller»: lino, cuero oscuro y el rojo vivo del logo que ya conocen sus clientes, con toques dorados de la máquina de coser. Es la más cercana a lo que ellos reconocen hoy.</div>
+</div>
+
+<div class="op" id="c">
+  <h2>C · Azul marino y hilo rojo</h2><div class="quien">Mezcla de ambos · corporativa y con acción clara</div>
+  <div class="sw"><span style="background:#1b2a3d;color:#fff">Marino<br>#1B2A3D</span><span style="background:#a9191b;color:#fff">Hilo rojo<br>#A9191B</span><span style="background:#e9e6df">Hueso<br>#E9E6DF</span><span style="background:#fcfbf8">Papel<br>#FCFBF8</span><span style="background:#cfcabd">Borde<br>#CFCABD</span></div>
+  <div class="app"><div class="side"><i class="on"></i><i></i><i></i><i></i></div><div class="main">
+    <div class="top"><img src="../material-cliente/logo-rediseno-v1.webp"><span class="chip">● Copia al día</span></div>
+    <div class="g"><div class="prods"><div class="p"><div class="f"></div><b>Pegante Fénix</b>$ 12.000<div class="st">Pegantes</div></div><div class="p"><div class="f"></div><b>Cono de hilo</b>$ 9.000<div class="st">Hilos</div></div><div class="p"><div class="f"></div><b>Thinner</b>$ 7.500<div class="st">Soluciones</div></div></div>
+    <div class="cart">Nueva venta<div class="tot">$ 28.500</div><div class="btn pri">Confirmar venta</div><div class="btn sec">Cancelar</div></div></div>
+    <div class="tags"><span class="tag ok">En stock</span><span class="tag warn">Stock bajo</span><span class="tag bad">Agotado</span></div>
+  </div></div>
+  <div class="oscuro"><div class="m">Modo oscuro</div><div class="bt">Confirmar</div></div>
+  <div class="nota"><b>Se siente:</b> la más «pro» y limpia. El botón principal es azul marino y el <b>rojo se reserva</b> para el total, lo activo y los avisos: así «Anular» o un error nunca se parecen a «Confirmar». Mejor para quien se confunde fácil.</div>
+</div>
+
+</div>
+</body>
+</html>
