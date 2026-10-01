@@ -20,7 +20,7 @@ Se instala en **un solo PC del negocio** (funciona sin internet, dentro de la re
 Dos roles: **Dueño** (todo) y **Vendedor** (vende y consulta; no ve costos ni ganancias). Los permisos los aplica el servidor, no solo la pantalla.
 
 ## Tres versiones, un solo código
-1. **Demo pública**: solo la pantalla con datos de ejemplo en memoria, en su propio repositorio: **[nivel-demo](https://github.com/TU-USUARIO/nivel-demo)** *(reemplaza TU-USUARIO)*. Se genera con `npm run build:demo` en `apps/web`.
+1. **Demo pública**: solo la pantalla con datos de ejemplo en memoria, en su propio repositorio: **[nivel-demo](https://github.com/pulise222/nivel-demo)**. Se genera con `npm run build:demo` en `apps/web`.
 2. **Producto genérico**: la versión completa, instalable en cualquier PC con Windows.
 3. **Versión del cliente**: la misma, con su logo y paleta mediante la carpeta `personalizacion` (sin tocar código).
 
