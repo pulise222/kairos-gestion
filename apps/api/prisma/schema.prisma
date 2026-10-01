@@ -1,0 +1,354 @@
+// Esquema de la base de datos de Nivel · Control de tienda (PostgreSQL).
+//
+// Reglas de diseño:
+//  • El DINERO es siempre un entero en pesos (Int). Nunca decimales flotantes.
+//  • Las ventas guardan una COPIA del nombre, precio y costo (VentaItem): si mañana cambian los
+//    precios, las ventas pasadas no se alteran y la ganancia histórica sigue siendo correcta.
+//  • Nada se borra de verdad lo que tenga historia: se desactiva (activo = false) o se anula.
+//  • Toda variación de stock deja un MovimientoStock (auditoría: el stock siempre se puede explicar).
+//  • Las fechas llevan zona horaria (Timestamptz).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  DUENO
+  VENDEDOR
+}
+
+enum EstadoVenta {
+  COMPLETADA
+  ANULADA
+}
+
+enum MedioPago {
+  EFECTIVO
+  TRANSFERENCIA
+  TARJETA
+}
+
+enum TipoMovimiento {
+  ENTRADA // compra a proveedor
+  VENTA
+  AJUSTE // conteo físico, pérdida o daño
+  ANULACION // devuelve el stock de una venta anulada
+  DEVOLUCION_CLIENTE // un cliente devolvió producto y volvió al inventario
+  DEVOLUCION_PROVEEDOR // se le devolvió mercancía a un proveedor (sale del inventario)
+}
+
+// Por qué se le devuelve mercancía a un proveedor.
+enum MotivoDevolucionProveedor {
+  SOBRANTE // llegó de más
+  DANADO
+  EQUIVOCADO // no es lo que se pidió
+  VENCIDO
+  OTRO
+}
+
+// Cómo se resuelve con el proveedor lo que se le devolvió (informativo: Nivel no lleva contabilidad de cuentas por pagar).
+enum ResolucionProveedor {
+  PENDIENTE
+  NOTA_CREDITO
+  REEMBOLSO
+  REPOSICION
+}
+
+model Usuario {
+  id             Int      @id @default(autoincrement())
+  nombre         String
+  usuario        String   @unique
+  contrasenaHash String   @map("contrasena_hash")
+  rol            Rol
+  activo         Boolean  @default(true)
+  creadoEn       DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+
+  ventas                Venta[]               @relation("VentaVendedor")
+  ventasAnuladas        Venta[]               @relation("VentaAnuladaPor")
+  compras               Compra[]
+  movimientos           MovimientoStock[]
+  cambiosDePrecio       HistorialPrecio[]
+  devoluciones          Devolucion[]
+  devolucionesProveedor DevolucionProveedor[]
+
+  @@map("usuario")
+}
+
+model Categoria {
+  id     Int     @id @default(autoincrement())
+  nombre String  @unique
+  color  String  @default("#b8502a")
+  activa Boolean @default(true)
+
+  productos Producto[]
+
+  @@map("categoria")
+}
+
+model Proveedor {
+  id       Int     @id @default(autoincrement())
+  nombre   String
+  telefono String?
+  correo   String?
+  notas    String?
+  activo   Boolean @default(true)
+
+  productos    Producto[]
+  compras      Compra[]
+  devoluciones DevolucionProveedor[]
+
+  @@map("proveedor")
+}
+
+model Producto {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  codigo        String   @unique // código de barras o interno
+  // Nombre en minúsculas y sin tildes, para buscar ("jabon" encuentra "Jabón"). Lo mantiene el servicio.
+  busqueda      String   @default("")
+  imagen        String?
+  descripcion   String?
+  categoriaId   Int      @map("categoria_id")
+  proveedorId   Int?     @map("proveedor_id")
+  costo         Int // pesos enteros
+  precio        Int // pesos enteros
+  stock         Int      @default(0)
+  stockMinimo   Int      @default(0) @map("stock_minimo")
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn DateTime @updatedAt @map("actualizado_en") @db.Timestamptz()
+
+  categoria           Categoria                 @relation(fields: [categoriaId], references: [id])
+  proveedor           Proveedor?                @relation(fields: [proveedorId], references: [id])
+  ventaItems          VentaItem[]
+  compraItems         CompraItem[]
+  movimientos         MovimientoStock[]
+  historialPrecios    HistorialPrecio[]
+  devolucionItems     DevolucionItem[]
+  devolucionProvItems DevolucionProveedorItem[]
+
+  @@index([categoriaId])
+  @@index([proveedorId])
+  @@index([nombre])
+  @@map("producto")
+}
+
+model Venta {
+  id                Int         @id @default(autoincrement())
+  numero            Int         @unique @default(autoincrement()) // consecutivo visible: Venta #0127
+  usuarioId         Int         @map("usuario_id")
+  total             Int
+  pagado            Int
+  vueltas           Int
+  medioPago         MedioPago   @default(EFECTIVO) @map("medio_pago")
+  estado            EstadoVenta @default(COMPLETADA)
+  motivoAnulacion   String?     @map("motivo_anulacion")
+  anuladaEn         DateTime?   @map("anulada_en") @db.Timestamptz()
+  anuladaPorId      Int?        @map("anulada_por_id")
+  creadaEn          DateTime    @default(now()) @map("creada_en") @db.Timestamptz()
+  // Clave única que genera el cliente por cada intento de venta: si el mismo intento llega dos veces
+  // (doble clic, reintento por red inestable), el servidor devuelve la venta ya registrada en vez de crear otra.
+  claveIdempotencia String?     @unique @map("clave_idempotencia")
+
+  usuario      Usuario           @relation("VentaVendedor", fields: [usuarioId], references: [id])
+  anuladaPor   Usuario?          @relation("VentaAnuladaPor", fields: [anuladaPorId], references: [id])
+  items        VentaItem[]
+  movimientos  MovimientoStock[]
+  devoluciones Devolucion[]
+
+  @@index([creadaEn])
+  @@index([estado, creadaEn])
+  @@map("venta")
+}
+
+model VentaItem {
+  id             Int    @id @default(autoincrement())
+  ventaId        Int    @map("venta_id")
+  productoId     Int    @map("producto_id")
+  nombreProducto String @map("nombre_producto") // copia al momento de vender
+  cantidad       Int
+  precioUnitario Int    @map("precio_unitario") // copia al momento de vender
+  costoUnitario  Int    @map("costo_unitario") // copia al momento de vender
+
+  venta           Venta            @relation(fields: [ventaId], references: [id])
+  producto        Producto         @relation(fields: [productoId], references: [id])
+  devolucionItems DevolucionItem[]
+
+  @@index([ventaId])
+  @@index([productoId])
+  @@map("venta_item")
+}
+
+model Compra {
+  id          Int      @id @default(autoincrement())
+  proveedorId Int      @map("proveedor_id")
+  usuarioId   Int      @map("usuario_id")
+  total       Int
+  notas       String?
+  fecha       DateTime @default(now()) @db.Timestamptz()
+
+  proveedor             Proveedor             @relation(fields: [proveedorId], references: [id])
+  usuario               Usuario               @relation(fields: [usuarioId], references: [id])
+  items                 CompraItem[]
+  movimientos           MovimientoStock[]
+  devolucionesProveedor DevolucionProveedor[]
+
+  @@index([proveedorId])
+  @@index([fecha])
+  @@map("compra")
+}
+
+model CompraItem {
+  id            Int @id @default(autoincrement())
+  compraId      Int @map("compra_id")
+  productoId    Int @map("producto_id")
+  cantidad      Int
+  costoUnitario Int @map("costo_unitario")
+
+  compra   Compra   @relation(fields: [compraId], references: [id])
+  producto Producto @relation(fields: [productoId], references: [id])
+
+  @@index([compraId])
+  @@index([productoId])
+  @@map("compra_item")
+}
+
+// Libro de movimientos del inventario. "cantidad" lleva signo: + sube el stock, − lo baja.
+model MovimientoStock {
+  id                    Int            @id @default(autoincrement())
+  productoId            Int            @map("producto_id")
+  tipo                  TipoMovimiento
+  cantidad              Int
+  stockResultante       Int            @map("stock_resultante") // cómo quedó el stock tras el movimiento
+  motivo                String?
+  ventaId               Int?           @map("venta_id")
+  compraId              Int?           @map("compra_id")
+  devolucionId          Int?           @map("devolucion_id")
+  devolucionProveedorId Int?           @map("devolucion_proveedor_id")
+  usuarioId             Int            @map("usuario_id")
+  creadoEn              DateTime       @default(now()) @map("creado_en") @db.Timestamptz()
+
+  producto            Producto             @relation(fields: [productoId], references: [id])
+  venta               Venta?               @relation(fields: [ventaId], references: [id])
+  compra              Compra?              @relation(fields: [compraId], references: [id])
+  devolucion          Devolucion?          @relation(fields: [devolucionId], references: [id])
+  devolucionProveedor DevolucionProveedor? @relation(fields: [devolucionProveedorId], references: [id])
+  usuario             Usuario              @relation(fields: [usuarioId], references: [id])
+
+  @@index([productoId, creadoEn])
+  @@index([ventaId])
+  @@index([compraId])
+  @@map("movimiento_stock")
+}
+
+// Devolución de un CLIENTE sobre una venta (total o parcial). Se devuelve el dinero al PRECIO al que se vendió.
+model Devolucion {
+  id                Int       @id @default(autoincrement())
+  ventaId           Int       @map("venta_id")
+  usuarioId         Int       @map("usuario_id")
+  total             Int // dinero que se le devolvió al cliente
+  motivo            String
+  medioReembolso    MedioPago @default(EFECTIVO) @map("medio_reembolso")
+  claveIdempotencia String?   @unique @map("clave_idempotencia")
+  creadaEn          DateTime  @default(now()) @map("creada_en") @db.Timestamptz()
+
+  venta       Venta             @relation(fields: [ventaId], references: [id])
+  usuario     Usuario           @relation(fields: [usuarioId], references: [id])
+  items       DevolucionItem[]
+  movimientos MovimientoStock[]
+
+  @@index([ventaId])
+  @@index([creadaEn])
+  @@map("devolucion")
+}
+
+model DevolucionItem {
+  id             Int     @id @default(autoincrement())
+  devolucionId   Int     @map("devolucion_id")
+  ventaItemId    Int     @map("venta_item_id")
+  productoId     Int     @map("producto_id")
+  nombreProducto String  @map("nombre_producto") // copia, como en la venta
+  cantidad       Int
+  precioUnitario Int     @map("precio_unitario") // el precio de la VENTA (no el actual)
+  costoUnitario  Int     @map("costo_unitario")
+  /// false cuando el producto vuelve dañado: se devuelve el dinero pero no entra al inventario
+  reingresaStock Boolean @default(true) @map("reingresa_stock")
+
+  devolucion Devolucion @relation(fields: [devolucionId], references: [id])
+  ventaItem  VentaItem  @relation(fields: [ventaItemId], references: [id])
+  producto   Producto   @relation(fields: [productoId], references: [id])
+
+  @@index([devolucionId])
+  @@index([ventaItemId])
+  @@map("devolucion_item")
+}
+
+// Devolución de mercancía a un PROVEEDOR (llegó de más, dañada, equivocada o vencida). Saca stock del inventario.
+model DevolucionProveedor {
+  id                Int                       @id @default(autoincrement())
+  proveedorId       Int                       @map("proveedor_id")
+  compraId          Int?                      @map("compra_id") // la compra de donde vino (opcional)
+  usuarioId         Int                       @map("usuario_id")
+  total             Int // valor a costo de lo devuelto (lo que el proveedor debe abonar)
+  motivo            MotivoDevolucionProveedor
+  nota              String?
+  resolucion        ResolucionProveedor       @default(PENDIENTE)
+  claveIdempotencia String?                   @unique @map("clave_idempotencia")
+  fecha             DateTime                  @default(now()) @db.Timestamptz()
+
+  proveedor   Proveedor                 @relation(fields: [proveedorId], references: [id])
+  compra      Compra?                   @relation(fields: [compraId], references: [id])
+  usuario     Usuario                   @relation(fields: [usuarioId], references: [id])
+  items       DevolucionProveedorItem[]
+  movimientos MovimientoStock[]
+
+  @@index([proveedorId, fecha])
+  @@index([compraId])
+  @@map("devolucion_proveedor")
+}
+
+model DevolucionProveedorItem {
+  id                    Int @id @default(autoincrement())
+  devolucionProveedorId Int @map("devolucion_proveedor_id")
+  productoId            Int @map("producto_id")
+  cantidad              Int
+  costoUnitario         Int @map("costo_unitario")
+
+  devolucion DevolucionProveedor @relation(fields: [devolucionProveedorId], references: [id])
+  producto   Producto            @relation(fields: [productoId], references: [id])
+
+  @@index([devolucionProveedorId])
+  @@index([productoId])
+  @@map("devolucion_proveedor_item")
+}
+
+// HU-09: historial de cambios de precio y costo.
+model HistorialPrecio {
+  id             Int      @id @default(autoincrement())
+  productoId     Int      @map("producto_id")
+  costoAnterior  Int      @map("costo_anterior")
+  costoNuevo     Int      @map("costo_nuevo")
+  precioAnterior Int      @map("precio_anterior")
+  precioNuevo    Int      @map("precio_nuevo")
+  usuarioId      Int      @map("usuario_id")
+  creadoEn       DateTime @default(now()) @map("creado_en") @db.Timestamptz()
+
+  producto Producto @relation(fields: [productoId], references: [id])
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@index([productoId, creadoEn])
+  @@map("historial_precio")
+}
+
+// Ajustes del negocio (nombre, moneda, colores, reglas como "permitir vender sin stock"...).
+model Configuracion {
+  clave String @id
+  valor Json
+
+  @@map("configuracion")
+}
