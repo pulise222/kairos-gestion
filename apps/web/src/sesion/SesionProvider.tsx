@@ -7,6 +7,9 @@ import { SesionContext } from './contexto'
 import type { Sesion, UsuarioSesion } from './contexto'
 
 const DUENO_DEMO: UsuarioSesion = { id: 1, nombre: 'Juan Pulido', usuario: 'juan', rol: 'DUENO' }
+const VENDEDOR_DEMO: UsuarioSesion = { id: 2, nombre: 'María Gómez', usuario: 'maria', rol: 'VENDEDOR' }
+/** En la demo: «maria» o «vendedor» entran como vendedora (ve menos cosas, como en el sistema real); cualquier otro usuario entra como dueño. */
+const usuarioDemo = (nombre: string) => (['maria', 'vendedor', 'vendedora'].includes(nombre.trim().toLowerCase()) ? VENDEDOR_DEMO : DUENO_DEMO)
 
 export function SesionProvider({ children }: { children: ReactNode }) {
   const avisar = useAviso()
@@ -62,9 +65,10 @@ export function SesionProvider({ children }: { children: ReactNode }) {
 
   const entrar = useCallback(async (nombre: string, clave: string): Promise<UsuarioSesion> => {
     if (MODO_DEMO) {
-      setUsuario(DUENO_DEMO)
+      const u = usuarioDemo(nombre)
+      setUsuario(u)
       setEstado('activa')
-      return DUENO_DEMO
+      return u
     }
     const r = await api.post<{ token: string; usuario: UsuarioSesion }>('/auth/login', { usuario: nombre, contrasena: clave })
     token.guardar(r.token)

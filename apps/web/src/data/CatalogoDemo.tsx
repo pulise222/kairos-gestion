@@ -7,6 +7,7 @@ import { aTexto } from '../lib/periodos'
 import { comprasIniciales, movimientosIniciales, ventasIniciales } from './semilla'
 import { aplicarEntrada, totalEntrada } from '../lib/inventario'
 import { siguienteCodigo } from '../lib/busqueda'
+import { useSesion } from '../sesion/contexto'
 import { CatalogoContext } from './contexto'
 import type { Catalogo, Compra, DevolucionProveedorListada, Movimiento, VentaListada } from './contexto'
 
@@ -17,6 +18,8 @@ import type { Catalogo, Compra, DevolucionProveedorListada, Movimiento, VentaLis
   Los datos se reinician al recargar la página: es una demostración, no guarda nada.
 */
 export function CatalogoDemo({ children }: { children: ReactNode }) {
+  const { usuario, esDueno } = useSesion()
+  const quien = usuario?.nombre ?? 'Juan Pulido'
   const [productos, setProductos] = useState<Producto[]>(productosIniciales)
   const [movimientos, setMovimientos] = useState<Movimiento[]>(movimientosIniciales)
   const [compras, setCompras] = useState<Compra[]>(comprasIniciales)
@@ -27,7 +30,7 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
   const siguienteId = useRef({ producto: productosIniciales.length + 1, movimiento: 1000, compra: 5, proveedor: proveedoresIniciales.length + 1, venta: 128 })
 
   const mov = useCallback((m: Omit<Movimiento, 'id' | 'fecha' | 'usuario'>): Movimiento => ({
-    ...m, id: siguienteId.current.movimiento++, fecha: new Date(), usuario: 'Juan',
+    ...m, id: siguienteId.current.movimiento++, fecha: new Date(), usuario: quien.split(' ')[0]!,
   }), [])
 
   const crearProducto: Catalogo['crearProducto'] = useCallback(async (datos, stockInicial) => {
@@ -70,20 +73,22 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
     setMovimientos((ms) => [...nuevos, ...ms])
     const items = detalle.map((d) => ({ id: d.p!.id, productoId: d.p!.id, nombre: d.p!.nombre, cantidad: d.l.cantidad, precioUnitario: d.p!.precio, costoUnitario: d.p!.costo }))
     setVentas((vs) => [{
-      id: numero, numero, fecha: new Date(), vendedor: 'Juan Pulido', total, pagado: pago.pagado, vueltas: pago.pagado - total, medioPago: pago.medioPago ?? 'EFECTIVO',
+      id: numero, numero, fecha: new Date(), vendedor: quien, total, pagado: pago.pagado, vueltas: pago.pagado - total, medioPago: pago.medioPago ?? 'EFECTIVO',
       estado: 'COMPLETADA', items, ganancia: items.reduce((s, l) => s + l.cantidad * (l.precioUnitario - (l.costoUnitario ?? 0)), 0),
     }, ...vs])
     return { numero, total, pagado: pago.pagado, vueltas: pago.pagado - total, items: lineas.reduce((s, l) => s + l.cantidad, 0) }
   }, [productos, mov])
 
   const listarVentas: Catalogo['listarVentas'] = useCallback(async (f) => {
-    const dentro = ventas.filter((v) => {
+    // Igual que el servidor real: el vendedor ve solo SUS ventas y sin costos ni ganancias.
+    const visibles = esDueno ? ventas : ventas.filter((v) => v.vendedor === quien).map(({ ganancia: _g, ...v }) => ({ ...v, items: v.items.map(({ costoUnitario: _c, ...i }) => i) }))
+    const dentro = visibles.filter((v) => {
       const dia = aTexto(v.fecha)
       return (!f.desde || dia >= f.desde) && (!f.hasta || dia <= f.hasta) && (!f.estado || v.estado === f.estado)
     })
     const pagina = f.pagina ?? 1
     return { total: dentro.length, items: dentro.slice((pagina - 1) * 25, pagina * 25) }
-  }, [ventas])
+  }, [ventas, esDueno, quien])
 
   const anularVenta: Catalogo['anularVenta'] = useCallback(async (id, motivo) => {
     const v = ventas.find((x) => x.id === id)

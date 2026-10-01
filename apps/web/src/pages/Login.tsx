@@ -30,6 +30,10 @@ export function Login() {
   const [hover, setHover] = useState(false)
   const [fijada, setFijada] = useState(false)
   const ayuda = hover || fijada
+  const entrarComo = async (nombre: string) => {
+    setEnviando(true)
+    try { const u = await entrar(nombre, 'demo'); navegar(u.rol === 'DUENO' ? '/panel' : '/venta', { replace: true }) } finally { setEnviando(false) }
+  }
 
   if (estado === 'cargando') return <Cargando />
   // Ya hay sesión: cada rol cae en su pantalla de trabajo (el dueño en el Panel; el vendedor, en la caja).
@@ -90,18 +94,12 @@ export function Login() {
           {ayuda && (
             <div id="ayuda-demo" role="region" aria-label="Cómo entrar a la demo" className="glass mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-2xl p-4 text-sm">
               <p className="font-semibold">Esto es una demostración</p>
-              <p className="mt-1 text-muted">No necesitas una cuenta: escribe <b className="text-ink">cualquier usuario y contraseña</b> (por ejemplo «demo» y «demo») y pulsa <b className="text-ink">Entrar</b>. Los datos son de ejemplo y se reinician al recargar la página.</p>
-              <Button
-                type="button"
-                className="mt-3 w-full"
-                disabled={enviando}
-                onClick={async () => {
-                  setEnviando(true)
-                  try { const u = await entrar('demo', 'demo'); navegar(u.rol === 'DUENO' ? '/panel' : '/venta', { replace: true }) } finally { setEnviando(false) }
-                }}
-              >
-                Entrar ahora con datos de ejemplo
-              </Button>
+              <p className="mt-1 text-muted">No necesitas una cuenta. Elige con qué perfil quieres recorrerla; los datos son de ejemplo y se reinician al recargar.</p>
+              <div className="mt-3 space-y-2">
+                <Button type="button" className="w-full" disabled={enviando} onClick={() => entrarComo('juan')}>Entrar como dueño</Button>
+                <Button type="button" variante="secundario" className="w-full" disabled={enviando} onClick={() => entrarComo('maria')}>Entrar como vendedora</Button>
+              </div>
+              <p className="mt-3 text-xs text-muted"><b className="text-ink">Dueño:</b> ve todo (panel, costos, ganancias, proveedores, configuración). <b className="text-ink">Vendedora:</b> vende y consulta, sin costos ni ganancias. También puedes escribir el usuario <b className="text-ink">maria</b> (vendedora) o cualquier otro (dueño), con cualquier contraseña.</p>
             </div>
           )}
         </div>
@@ -147,7 +145,7 @@ export function Login() {
         {/* Solo en la demo pública: cualquier dato entra y el asistente se puede ver. En el sistema real no existe nada de esto. */}
         {MODO_DEMO && (
           <>
-            <p className="mt-5 text-center text-xs text-muted">Demostración: cualquier usuario y contraseña entran.</p>
+            <p className="mt-5 text-center text-xs text-muted">Demostración: cualquier usuario entra como dueño; «maria» entra como vendedora.</p>
             <Link to="/inicio" className="mt-2 block text-center text-xs font-medium text-accent hover:underline">Ver el asistente de primer arranque</Link>
           </>
         )}
