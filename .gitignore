@@ -1,0 +1,10 @@
+# Archivos locales de herramientas y del sistema
+.claude/
+.DS_Store
+Thumbs.db
+*.log
+# Nunca se sube: claves, datos del negocio, copias, fotos y personalización de un cliente
+.env
+.env.*
+!.env.example
+!.env.demo
