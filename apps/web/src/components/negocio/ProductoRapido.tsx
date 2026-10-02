@@ -67,12 +67,12 @@ export function ProductoRapido({ abierto, onCerrar, nombreInicial, onCreado }: P
         <CampoDinero etiqueta="Lo que te costó (opcional)" valor={costo} onCambiar={setCosto} ayuda="Si lo sabes, el sistema calcula tu ganancia. Lo puedes completar después." />
         <div>
           <p className="mb-2 text-sm font-medium text-muted">Sección</p>
-          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Sección">
+          <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2" role="radiogroup" aria-label="Sección">
             {secciones.map((c) => (
               <button key={c.id} type="button" role="radio" aria-checked={seccionId === c.id} onClick={() => setSeccionId(c.id)}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition ${seccionId === c.id ? 'border-accent bg-accent/10 ring-2 ring-accent/40' : 'border-line bg-panel hover:border-accent/50'}`}>
+                className={`flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition ${seccionId === c.id ? 'border-accent bg-accent/10 ring-2 ring-accent/40' : 'border-line bg-panel hover:border-accent/50'}`}>
                 <span className="size-3 shrink-0 rounded-full" style={{ background: c.color }} aria-hidden="true" />
-                <span className="min-w-0 flex-1 leading-tight">{c.nombre}</span>
+                <span className="min-w-0 flex-1 break-words leading-tight">{c.nombre}</span>
                 {seccionId === c.id && <Check className="size-4 shrink-0 text-accent" />}
               </button>
             ))}

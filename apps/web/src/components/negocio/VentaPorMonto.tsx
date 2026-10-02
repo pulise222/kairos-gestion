@@ -51,7 +51,7 @@ export function VentaPorMonto({ abierto, onCerrar, onAgregar }: Props) {
       <p className="mt-1 text-sm text-muted">Elige la sección y escribe cuánto vale. Puedes sumar varios valores, como en el cuaderno.</p>
 
       <p className="mb-2 mt-5 text-sm font-medium text-muted">1. ¿De qué sección es?</p>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Sección">
+      <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2" role="radiogroup" aria-label="Sección">
         {secciones.map((c) => (
           <button
             key={c.id}
@@ -59,12 +59,12 @@ export function VentaPorMonto({ abierto, onCerrar, onAgregar }: Props) {
             role="radio"
             aria-checked={seccion?.id === c.id}
             onClick={() => setSeccion(c)}
-            className={`flex items-center gap-2 rounded-2xl border px-3 py-3 text-left text-base font-medium transition ${
+            className={`flex min-w-0 items-center gap-2 rounded-2xl border px-3 py-3 text-left text-base font-medium transition ${
               seccion?.id === c.id ? 'border-accent bg-accent/10 ring-2 ring-accent/40' : 'border-line bg-panel hover:border-accent/50'
             }`}
           >
             <span className="size-3.5 shrink-0 rounded-full" style={{ background: c.color }} aria-hidden="true" />
-            <span className="min-w-0 flex-1 leading-tight">{c.nombre}</span>
+            <span className="min-w-0 flex-1 break-words leading-tight">{c.nombre}</span>
             {seccion?.id === c.id && <Check className="size-4 shrink-0 text-accent" />}
           </button>
         ))}
