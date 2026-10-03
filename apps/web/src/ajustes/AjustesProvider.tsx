@@ -14,7 +14,8 @@ import type { Ajustes, AjustesCtx, UsuarioSistema } from './contexto'
 import { desdeServidor, haciaServidor } from './servidor'
 import type { ConfigServidor } from './servidor'
 
-const CLAVE = 'nivel-ajustes'
+// La demo usa su propia clave: así quien ya la visitó con otros ajustes ve también los valores iniciales actuales.
+const CLAVE = MODO_DEMO ? 'kairos-demo-ajustes' : 'nivel-ajustes'
 
 /** Copia local de los ajustes: sirve para dibujar bien la pantalla de acceso antes de hablar con el servidor. */
 function leer(): Ajustes {

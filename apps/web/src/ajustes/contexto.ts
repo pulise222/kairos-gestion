@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 import { z } from 'zod'
 import type { Copia } from '../lib/copias'
+import { MODO_DEMO } from '../config'
 
 /*
   AJUSTES del negocio. En el sistema real vienen de la API (tabla "configuracion") y se guardan allí;
@@ -18,8 +19,9 @@ export const esquemaAjustes = z.object({
   metaDiaria: z.number().int().min(0).max(100_000_000).catch(0), // la meta es opcional: sin definir = 0
   // Apariencia
   acento: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().catch(null), // null = el del tema
-  patron: z.enum(['curvas', 'puntos', 'ondas', 'costura']).catch('costura'),
-  intensidad: z.number().min(0).max(100).catch(50),
+  // El sistema real de Kairos arranca con «Puntadas»; la demo pública, con «Curvas de nivel».
+  patron: z.enum(['curvas', 'puntos', 'ondas', 'costura']).catch(MODO_DEMO ? 'curvas' : 'costura'),
+  intensidad: z.number().min(0).max(100).catch(MODO_DEMO ? 75 : 50),
   // Módulos
   proveedoresActivo: z.boolean().catch(true),
   // Recibo
