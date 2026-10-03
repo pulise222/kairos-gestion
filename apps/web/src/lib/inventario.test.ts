@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { aplicarEntrada, calcularAjuste, porUrgencia, revisarConteo, sugerirCantidad, totalEntrada } from './inventario'
 import { productosIniciales } from '../mock/catalogo'
 
-const gaseosa = productosIniciales[0]! // stock 3, mínimo 12, costo 3.200
-const arroz = productosIniciales[7]! // stock 40, mínimo 15, costo 3.300
+const gaseosa = productosIniciales[0]! // Pegante Fénix 1 L: stock 24, mínimo 8, costo 8.500
+const arroz = productosIniciales[7]! // Pinta cuero marrón: stock 15, mínimo 8, costo 3.300
 
 describe('entrada de mercancía (HU-17)', () => {
   const lineas = [
@@ -18,11 +18,11 @@ describe('entrada de mercancía (HU-17)', () => {
 
   it('sube el stock y actualiza el costo al de la compra', () => {
     const { productos, cambios } = aplicarEntrada(productosIniciales, lineas)
-    expect(productos.find((p) => p.id === gaseosa.id)).toMatchObject({ stock: 27, costo: 3400 })
-    expect(productos.find((p) => p.id === arroz.id)).toMatchObject({ stock: 50, costo: 3300 })
+    expect(productos.find((p) => p.id === gaseosa.id)).toMatchObject({ stock: 48, costo: 3400 })
+    expect(productos.find((p) => p.id === arroz.id)).toMatchObject({ stock: 25, costo: 3300 })
     expect(cambios).toEqual([
-      { productoId: gaseosa.id, cantidad: 24, stockResultante: 27 },
-      { productoId: arroz.id, cantidad: 10, stockResultante: 50 },
+      { productoId: gaseosa.id, cantidad: 24, stockResultante: 48 },
+      { productoId: arroz.id, cantidad: 10, stockResultante: 25 },
     ])
   })
 
@@ -68,9 +68,9 @@ describe('ayudas de reposición', () => {
 
   it('ordena por urgencia: agotados, luego los más cerca de agotarse', () => {
     const orden = [...productosIniciales].sort(porUrgencia).slice(0, 4).map((p) => p.nombre)
-    expect(orden[0]).toBe('Jabón de baño') // stock 0
-    expect(orden[1]).toBe('Gaseosa 1.5 L') // 3 / 12 = 0,25
-    expect(orden[2]).toBe('Detergente 1 kg') // 2 / 6 = 0,33
+    expect(orden[0]).toBe('Varsol 1 L') // stock 0
+    expect(orden[1]).toBe('Contrafuerte (par)') // 2 / 10 = 0,20
+    expect(orden[2]).toBe('Aguja industrial #14') // 7 / 15 = 0,47
   })
 })
 

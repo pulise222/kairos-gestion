@@ -6,7 +6,7 @@ import type { Categoria, Producto, Proveedor } from '../mock/catalogo'
 import { aTexto } from '../lib/periodos'
 import { comprasIniciales, movimientosIniciales, ventasIniciales } from './semilla'
 import { aplicarEntrada, totalEntrada } from '../lib/inventario'
-import { siguienteCodigo } from '../lib/busqueda'
+import { llevaInventario, siguienteCodigo } from '../lib/busqueda'
 import { useSesion } from '../sesion/contexto'
 import { CatalogoContext } from './contexto'
 import type { Catalogo, Compra, DevolucionProveedorListada, Movimiento, VentaListada } from './contexto'
@@ -50,34 +50,38 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
     setProductos((ps) => ps.map((p) => (p.id === id ? { ...p, ...cambios } : p)))
   }, [])
 
+  // Productos internos de la «venta por monto» (uno por sección). No se muestran en el catálogo: viven aparte, como en el sistema real.
+  const productosDeSistema = useRef(new Map<string, Producto>())
+
   const registrarVenta: Catalogo['registrarVenta'] = useCallback(async (lineas, pago) => {
-    // Las mismas reglas que aplica el servidor real.
-    const detalle = lineas.map((l) => ({ l, p: productos.find((x) => x.id === l.productoId) }))
+    // Las mismas reglas que aplica el servidor real (Kairos: la venta nunca se bloquea por falta de stock).
+    const detalle = lineas.map((l) => ({ l, p: productos.find((x) => x.id === l.productoId) ?? [...productosDeSistema.current.values()].find((x) => x.id === l.productoId) }))
     if (detalle.some((d) => !d.p || !d.p.activo)) throw new ErrorApi(422, 'PRODUCTO_NO_DISPONIBLE', 'Hay productos que no existen o están desactivados')
-    const total = detalle.reduce((s, d) => s + d.p!.precio * d.l.cantidad, 0)
+    // En una venta por monto el precio es el valor escrito (y el costo se iguala al precio: no inventa ganancia).
+    const precioDe = (d: (typeof detalle)[number]) => d.l.precio ?? d.p!.precio
+    const costoDe = (d: (typeof detalle)[number]) => (d.l.precio !== undefined ? d.l.precio : d.p!.costo)
+    const total = detalle.reduce((s, d) => s + precioDe(d) * d.l.cantidad, 0)
     if (pago.pagado < total) throw new ErrorApi(422, 'PAGO_INSUFICIENTE', 'El pago no alcanza para cubrir el total')
-    for (const d of detalle) {
-      if (d.p!.stock < d.l.cantidad) throw new ErrorApi(409, 'STOCK_INSUFICIENTE', `No hay stock suficiente de "${d.p!.nombre}"`)
-    }
     const numero = siguienteId.current.venta++
     // El cálculo se hace FUERA de los "setState": las funciones actualizadoras deben ser puras
     // (React las ejecuta dos veces en modo estricto y duplicarían los movimientos).
     const nuevos: Movimiento[] = []
     setProductos(productos.map((p) => {
-      const l = lineas.find((x) => x.productoId === p.id)
-      if (!l) return p
-      const stock = p.stock - l.cantidad
-      nuevos.push(mov({ productoId: p.id, tipo: 'VENTA', cantidad: -l.cantidad, stockResultante: stock, motivo: `Venta #${String(numero).padStart(4, '0')}` }))
+      if (!llevaInventario(p)) return p // sin control de inventario: la venta no mueve stock
+      const cantidad = lineas.filter((x) => x.productoId === p.id).reduce((s, x) => s + x.cantidad, 0)
+      if (cantidad === 0) return p
+      const stock = p.stock - cantidad
+      nuevos.push(mov({ productoId: p.id, tipo: 'VENTA', cantidad: -cantidad, stockResultante: stock, motivo: `Venta #${String(numero).padStart(4, '0')}` }))
       return { ...p, stock }
     }))
     setMovimientos((ms) => [...nuevos, ...ms])
-    const items = detalle.map((d) => ({ id: d.p!.id, productoId: d.p!.id, nombre: d.p!.nombre, cantidad: d.l.cantidad, precioUnitario: d.p!.precio, costoUnitario: d.p!.costo }))
+    const items = detalle.map((d, i) => ({ id: numero * 100 + i, productoId: d.p!.id, nombre: d.p!.nombre, cantidad: d.l.cantidad, precioUnitario: precioDe(d), costoUnitario: costoDe(d) }))
     setVentas((vs) => [{
       id: numero, numero, fecha: new Date(), vendedor: quien, total, pagado: pago.pagado, vueltas: pago.pagado - total, medioPago: pago.medioPago ?? 'EFECTIVO',
       estado: 'COMPLETADA', items, ganancia: items.reduce((s, l) => s + l.cantidad * (l.precioUnitario - (l.costoUnitario ?? 0)), 0),
     }, ...vs])
     return { numero, total, pagado: pago.pagado, vueltas: pago.pagado - total, items: lineas.reduce((s, l) => s + l.cantidad, 0) }
-  }, [productos, mov])
+  }, [productos, mov, quien])
 
   const listarVentas: Catalogo['listarVentas'] = useCallback(async (f) => {
     // Igual que el servidor real: el vendedor ve solo SUS ventas y sin costos ni ganancias.
@@ -218,10 +222,15 @@ export function CatalogoDemo({ children }: { children: ReactNode }) {
     return { cambios, sinCambio: filas.length - cambios.length }
   }, [productos, mov])
 
-  // La venta por monto es del sistema real (cliente con servidor): la demo pública no la incluye.
-  const productoVentaRapida: Catalogo['productoVentaRapida'] = useCallback(async () => {
-    throw new ErrorApi(422, 'NO_DISPONIBLE_EN_DEMO', 'La venta por monto no está en la demostración.')
-  }, [])
+  // Venta por monto: un producto interno por sección, creado la primera vez (id negativo para no chocar con el catálogo).
+  const productoVentaRapida: Catalogo['productoVentaRapida'] = useCallback(async (categoriaId) => {
+    const previo = productosDeSistema.current.get(categoriaId)
+    if (previo) return previo
+    const nombre = categorias.find((c) => c.id === categoriaId)?.nombre ?? 'Sección'
+    const nuevo: Producto = { id: -(productosDeSistema.current.size + 1), codigo: `VR-${categoriaId}`, nombre: `Venta por monto · ${nombre}`, categoriaId, proveedorId: null, precio: 0, costo: 0, stock: 0, minimo: 0, activo: true, controlaStock: false }
+    productosDeSistema.current.set(categoriaId, nuevo)
+    return nuevo
+  }, [categorias])
 
   const crearProveedor: Catalogo['crearProveedor'] = useCallback(async (datos) => {
     const nuevo: Proveedor = { ...datos, id: siguienteId.current.proveedor++, activo: true }

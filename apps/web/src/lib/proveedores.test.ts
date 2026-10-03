@@ -9,20 +9,20 @@ const compras = comprasIniciales()
 
 describe('resumen de un proveedor', () => {
   it('cuenta sus productos activos y los que están bajos', () => {
-    const r = resumenProveedor({ id: 1 }, productosIniciales, compras, AHORA) // Distribuciones Andina: bebidas 101 a 104
-    expect(r.productos.map((p) => p.codigo)).toEqual(['101', '102', '103', '104'])
-    expect(r.bajos.map((p) => p.codigo)).toEqual(['101']) // la gaseosa: 3 ≤ 12
+    const r = resumenProveedor({ id: 1 }, productosIniciales, compras, AHORA) // Químicos del Norte: pegantes y soluciones 0001 a 0006
+    expect(r.productos.map((p) => p.codigo)).toEqual(['0001', '0002', '0003', '0004', '0005', '0006'])
+    expect(r.bajos.map((p) => p.codigo)).toEqual(['0003', '0006']) // Pegante Plus (4 ≤ 6) y Varsol (0 ≤ 6)
   })
 
   it('no cuenta productos desactivados', () => {
-    const desactivados = productosIniciales.map((p) => (p.id === 101 || p.codigo === '101' ? { ...p, activo: false } : p))
-    expect(resumenProveedor({ id: 1 }, desactivados, compras, AHORA).productos).toHaveLength(3)
+    const desactivados = productosIniciales.map((p) => (p.codigo === '0001' ? { ...p, activo: false } : p))
+    expect(resumenProveedor({ id: 1 }, desactivados, compras, AHORA).productos).toHaveLength(5)
   })
 
   it('lista las compras de la más reciente a la más antigua y suma lo comprado en 90 días', () => {
-    const r = resumenProveedor({ id: 3 }, productosIniciales, compras, AHORA) // Alimentos del Valle
+    const r = resumenProveedor({ id: 3 }, productosIniciales, compras, AHORA) // Hilos y Agujas Andina
     expect(r.compras.map((c) => c.id)).toEqual([2])
-    expect(r.comprado90d).toBe(30 * 3300 + 12 * 3900)
+    expect(r.comprado90d).toBe(40 * 6200 + 50 * 1700)
     expect(r.ultimaCompra).toEqual(compras.find((c) => c.id === 2)!.fecha)
   })
 
@@ -30,7 +30,7 @@ describe('resumen de un proveedor', () => {
     const vieja = { ...compras[0]!, id: 99, proveedorId: 1, fecha: new Date(AHORA.getTime() - 100 * 86_400_000), total: 500_000 }
     const r = resumenProveedor({ id: 1 }, productosIniciales, [...compras, vieja], AHORA)
     expect(r.compras.some((c) => c.id === 99)).toBe(true) // está en el historial
-    expect(r.comprado90d).toBe(24 * 1100) // pero no en el total de 90 días
+    expect(r.comprado90d).toBe(24 * 8500 + 20 * 4800) // pero no en el total de 90 días
   })
 
   it('un proveedor sin compras ni productos no rompe nada', () => {

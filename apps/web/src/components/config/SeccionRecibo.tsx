@@ -4,7 +4,7 @@ import { Interruptor } from '../ui/Interruptor'
 import { Bloque } from './Bloque'
 
 const items = [
-  { nombre: 'Gaseosa 1.5 L', cantidad: 2, precio: 4500 },
+  { nombre: 'Pegante Fénix 1 L', cantidad: 2, precio: 12000 },
   { nombre: 'Galletas de sal', cantidad: 1, precio: 2800 },
 ]
 

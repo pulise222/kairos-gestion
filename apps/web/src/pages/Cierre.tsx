@@ -3,25 +3,14 @@ import { CalendarCheck, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Lo
 import { Button } from '../components/ui/Button'
 import { CampoDinero } from '../components/ui/CampoDinero'
 import { useAviso } from '../components/ui/Avisos'
-import { api, mensajeDe } from '../api/cliente'
+import { mensajeDe } from '../api/cliente'
+import { useFuenteCierre } from '../lib/fuenteCierre'
+import type { Cierre, Resumen } from '../lib/fuenteCierre'
 import { cuadre, efectivoEsperado, sumarDias } from '../lib/cierre'
 import { pesos } from '../lib/dinero'
 import { fechaHora } from '../lib/fechas'
 import { nombreDia } from '../lib/panel'
 import { useEnvioUnico } from '../lib/envio'
-
-interface Cierre { fecha: string; fondoInicial: number; efectivoEsperado: number; efectivoContado: number; diferencia: number; totalVentas: number; tickets: number; nota: string | null; actualizadoEn: string }
-interface Resumen {
-  fecha: string
-  hoy: string
-  ventasNetas: number
-  tickets: number
-  porMedio: { EFECTIVO: number; TRANSFERENCIA: number; TARJETA: number }
-  devuelto: { total: number; EFECTIVO: number; TRANSFERENCIA: number; TARJETA: number }
-  efectivoNeto: number
-  porSeccion: { id: number; nombre: string; color: string; ventas: number }[]
-  cierre: Cierre | null
-}
 
 /*
   CIERRE DEL DÍA: lo que antes era la palabra al final del cuaderno («ya validé que la plata cuadra»).
@@ -29,6 +18,7 @@ interface Resumen {
 */
 export function CierrePagina() {
   const avisar = useAviso()
+  const fuente = useFuenteCierre()
   const { enviando, ejecutar } = useEnvioUnico()
   const [fecha, setFecha] = useState<string | null>(null) // null = hoy (lo decide el servidor, en hora de Colombia)
   const [r, setR] = useState<Resumen | null>(null)
@@ -39,14 +29,14 @@ export function CierrePagina() {
   const [nota, setNota] = useState('')
 
   const cargarHistorial = useCallback(async () => {
-    try { setHistorial(await api.get<Cierre[]>('/cierres', { limite: 14 })) } catch { /* el historial es un extra: si falla, no estorba */ }
-  }, [])
+    try { setHistorial(await fuente.historial()) } catch { /* el historial es un extra: si falla, no estorba */ }
+  }, [fuente])
 
   // Al cambiar de día se vuelve a pedir el resumen y se preparan los campos con lo que ya estuviera guardado.
   useEffect(() => {
     let vigente = true
     setError(null)
-    api.get<Resumen>('/cierres/resumen', fecha ? { fecha } : {})
+    fuente.resumen(fecha)
       .then((x) => {
         if (!vigente) return
         setR(x)
@@ -56,7 +46,7 @@ export function CierrePagina() {
       })
       .catch((e) => vigente && setError(mensajeDe(e)))
     return () => { vigente = false }
-  }, [fecha])
+  }, [fecha, fuente])
   useEffect(() => { void cargarHistorial() }, [cargarHistorial])
   // La base inicial del día suele ser la misma de ayer: si no hay cierre guardado, se sugiere la del último.
   useEffect(() => {
@@ -67,7 +57,7 @@ export function CierrePagina() {
   const guardar = () => ejecutar(async () => {
     if (!r) return
     try {
-      const x = await api.post<Resumen>('/cierres', { fecha: r.fecha, fondoInicial: fondo, efectivoContado: contado, ...(nota.trim() ? { nota: nota.trim() } : {}) })
+      const x = await fuente.guardar({ fecha: r.fecha, fondoInicial: fondo, efectivoContado: contado, ...(nota.trim() ? { nota: nota.trim() } : {}) })
       setR(x)
       void cargarHistorial()
       avisar(x.cierre && x.cierre.diferencia === 0 ? 'Cierre guardado: ¡la caja cuadra!' : 'Cierre guardado.', 'ok')

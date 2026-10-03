@@ -2,7 +2,7 @@
   Datos de ejemplo del prototipo (Fase 0). Cuando exista el backend, estas funciones se
   reemplazan por llamadas a la API; las pantallas no cambian. Dinero: enteros en pesos.
 */
-export const negocio = { nombre: 'Tienda Don Pepe', usuario: 'Juan', rol: 'DUENO' as const }
+export const negocio = { nombre: 'Servicios Kairos', usuario: 'Juan', rol: 'DUENO' as const }
 
 export const ventasSemana = [
   { dia: 'Mié', total: 842000 },
@@ -15,28 +15,28 @@ export const ventasSemana = [
 ]
 
 export const resumenHoy = {
-  ventas: 1284500,
-  ventasAyer: 1148000,
-  ganancia: 412300,
-  gananciaAyer: 381000,
-  tickets: 48,
-  ticketsAyer: 43,
-  metaDia: 1800000,
-  tendenciaGanancia: [310, 340, 290, 380, 360, 381, 412],
+  ventas: 684500,
+  ventasAyer: 612000,
+  ganancia: 221300,
+  gananciaAyer: 198000,
+  tickets: 41,
+  ticketsAyer: 38,
+  metaDia: 800000,
+  tendenciaGanancia: [170, 190, 165, 205, 188, 198, 221],
 }
 
 export const masVendidos = [
-  { nombre: 'Gaseosa 1.5 L', unidades: 64 },
-  { nombre: 'Pan tajado', unidades: 51 },
-  { nombre: 'Leche 1 L', unidades: 47 },
-  { nombre: 'Huevos x12', unidades: 39 },
-  { nombre: 'Arroz 1 kg', unidades: 33 },
+  { nombre: 'Pegante Fénix 1 L', unidades: 64 },
+  { nombre: 'Agujas (paquete)', unidades: 51 },
+  { nombre: 'Cono de hilo negro', unidades: 47 },
+  { nombre: 'Thinner 1 L', unidades: 39 },
+  { nombre: 'Sesgo (rollo)', unidades: 33 },
 ]
 
 export const stockBajo = [
-  { id: 1, nombre: 'Gaseosa 1.5 L', stock: 3, minimo: 12, proveedor: 'Distribuciones Andina' },
-  { id: 2, nombre: 'Galletas de sal', stock: 8, minimo: 10, proveedor: 'Alimentos del Valle' },
-  { id: 3, nombre: 'Detergente 1 kg', stock: 2, minimo: 6, proveedor: 'Aseo Total' },
+  { id: 3, nombre: 'Pegante Plus 750 ml', stock: 4, minimo: 6, proveedor: 'Químicos del Norte' },
+  { id: 12, nombre: 'Aguja industrial #14', stock: 7, minimo: 15, proveedor: 'Hilos y Agujas Andina' },
+  { id: 17, nombre: 'Contrafuerte (par)', stock: 2, minimo: 10, proveedor: 'Materiales para Calzado Aguilar' },
 ]
 
 export const ultimasVentas = [

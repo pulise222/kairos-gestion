@@ -72,7 +72,7 @@ export function ProveedorFormulario({ abierto, onCerrar, proveedor }: Props) {
       pie={<div className="flex gap-2"><Button variante="secundario" className="flex-1" onClick={onCerrar}>Cancelar</Button><Button type="submit" form="form-proveedor" className="flex-1" disabled={enviando}>{enviando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Agregar proveedor'}</Button></div>}
     >
       <form id="form-proveedor" onSubmit={guardar} noValidate className="space-y-4">
-        <Campo etiqueta="Nombre" autoFocus placeholder="Ej. Distribuciones Andina" error={errors.nombre?.message} {...register('nombre')} />
+        <Campo etiqueta="Nombre" autoFocus placeholder="Ej. Químicos del Norte" error={errors.nombre?.message} {...register('nombre')} />
         <Campo etiqueta="Teléfono / WhatsApp" inputMode="tel" placeholder="300 123 4567" error={errors.telefono?.message} {...register('telefono')} />
         <Campo etiqueta="Correo (opcional)" type="email" inputMode="email" placeholder="pedidos@proveedor.co" error={errors.correo?.message} {...register('correo')} />
         <label className="block">

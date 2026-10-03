@@ -4,8 +4,8 @@ import type { LineaCarrito } from './venta'
 import { buscar, estadoDe, margen, normalizar, siguienteCodigo } from './busqueda'
 import { productosIniciales } from '../mock/catalogo'
 
-const gaseosa = productosIniciales[0]! // código "101", $4.500
-const arroz = productosIniciales[7]! // código de barras, $4.200
+const gaseosa = productosIniciales[0]! // Pegante Fénix 1 L, código "0001", $12.000
+const arroz = productosIniciales[7]! // Pinta cuero marrón, código "0008", $5.000
 const lineas: LineaCarrito[] = [
   { producto: gaseosa, cantidad: 1 },
   { producto: arroz, cantidad: 2 },
@@ -13,7 +13,7 @@ const lineas: LineaCarrito[] = [
 
 describe('reglas de la venta', () => {
   it('calcula el total en pesos enteros', () => {
-    expect(totalVenta(lineas)).toBe(12900)
+    expect(totalVenta(lineas)).toBe(22000)
     expect(totalVenta([])).toBe(0)
   })
 
@@ -22,19 +22,19 @@ describe('reglas de la venta', () => {
   })
 
   it('calcula las vueltas y nunca da negativo', () => {
-    expect(vueltas(12900, 20000)).toBe(7100)
-    expect(vueltas(12900, 10000)).toBe(0)
+    expect(vueltas(22000, 30000)).toBe(8000)
+    expect(vueltas(22000, 10000)).toBe(0)
   })
 
   it('calcula lo que falta por pagar', () => {
-    expect(faltante(12900, 10000)).toBe(2900)
-    expect(faltante(12900, 20000)).toBe(0)
+    expect(faltante(22000, 10000)).toBe(12000)
+    expect(faltante(22000, 30000)).toBe(0)
   })
 
   it('no deja confirmar con carrito vacío ni pagando de menos (HU-13)', () => {
     expect(puedeConfirmar(0, 5000, false)).toBe(false)
-    expect(puedeConfirmar(12900, 12899, true)).toBe(false)
-    expect(puedeConfirmar(12900, 12900, true)).toBe(true)
+    expect(puedeConfirmar(22000, 21999, true)).toBe(false)
+    expect(puedeConfirmar(22000, 22000, true)).toBe(true)
   })
 })
 
@@ -42,29 +42,27 @@ describe('búsqueda por nombre o por número/código (HU-11)', () => {
   const nombres = (q: string) => buscar(productosIniciales, q).map((p) => p.nombre)
 
   it('ignora tildes y mayúsculas', () => {
-    expect(normalizar('  JABÓN ')).toBe('jabon')
-    expect(nombres('jabon')).toEqual(['Jabón de baño'])
+    expect(normalizar('  ELÁSTICO ')).toBe('elastico')
+    expect(nombres('elastico')).toEqual(['Elástico 2 cm (rollo)'])
   })
 
-  it('el número EXACTO va primero: "101" trae la gaseosa antes que cualquier otro', () => {
-    expect(nombres('101')[0]).toBe('Gaseosa 1.5 L')
+  it('el número EXACTO va primero: "0001" trae el Pegante Fénix antes que cualquier otro', () => {
+    expect(nombres('0001')[0]).toBe('Pegante Fénix 1 L')
   })
 
   it('un número parcial trae los códigos que empiezan así, en orden', () => {
-    // Primero los números que EMPIEZAN por 10 (101 a 104); los códigos de barras que solo lo contienen van después.
-    expect(nombres('10').slice(0, 4)).toEqual(['Gaseosa 1.5 L', 'Agua 600 ml', 'Jugo de naranja 1 L', 'Cerveza 330 ml']) // 101, 102, 103, 104
-    expect(nombres('10')).toHaveLength(4) // sin ruido de códigos de barras largos que contienen "10"
-    expect(nombres('20').slice(0, 3)).toEqual(['Detergente 1 kg', 'Jabón de baño', 'Papel higiénico x4'])
+    // Los códigos que EMPIEZAN por 001 (0010 a 0017) van antes que cualquier otro que solo lo contenga.
+    expect(nombres('001').slice(0, 3)).toEqual(['Hilo encerado café', 'Agujas (paquete)', 'Aguja industrial #14'])
+    expect(nombres('001')).toHaveLength(8) // 0010 a 0017
   })
 
-  it('encuentra por código de barras completo o por una parte', () => {
-    expect(nombres('7701001000008')).toEqual(['Arroz 1 kg'])
-    expect(nombres('0008')).toEqual(['Arroz 1 kg'])
+  it('encuentra por una parte del código', () => {
+    expect(nombres('0008')).toEqual(['Pinta cuero marrón 125 ml'])
   })
 
   it('el nombre que EMPIEZA con lo escrito gana al que solo lo contiene', () => {
-    expect(nombres('pa')[0]).toBe('Pan tajado') // empieza por "pa"; "Papel…" y "Papas…" también, orden alfabético
-    expect(nombres('ga').slice(0, 2)).toEqual(['Galletas de sal', 'Gaseosa 1.5 L'])
+    expect(nombres('pe')[0]).toBe('Pegante Fénix 1 L') // empieza por «pe»; «Pegante One Way» y «Pegante Plus» también, orden alfabético
+    expect(nombres('hilo').slice(0, 2)).toEqual(['Hilo encerado café', 'Cono de hilo negro']) // empieza por «hilo» gana al que solo lo contiene
   })
 
   it('sin texto devuelve todo y sin coincidencias devuelve vacío', () => {
@@ -75,8 +73,8 @@ describe('búsqueda por nombre o por número/código (HU-11)', () => {
 
 describe('utilidades del catálogo', () => {
   it('genera el siguiente número corto libre', () => {
-    expect(siguienteCodigo(productosIniciales)).toBe('204') // el mayor número corto es 203
-    expect(siguienteCodigo([])).toBe('101')
+    expect(siguienteCodigo(productosIniciales)).toBe('0018') // el mayor número es 0017
+    expect(siguienteCodigo([])).toBe('0001')
   })
 
   it('calcula el margen sobre el precio', () => {

@@ -22,7 +22,7 @@ function aleatorio(semilla: number) {
   }
 }
 
-// Viernes y sábado se vende más; lunes menos (así se ve en una tienda de barrio).
+// Viernes y sábado se vende más; lunes menos (así se ve en un negocio de barrio).
 const FACTOR_SEMANA = [0.9, 0.75, 0.8, 0.85, 0.95, 1.2, 1.45] // domingo a sábado
 
 export function generarDias(hoy: Date, cantidad = 400): DiaVentas[] {
@@ -33,9 +33,9 @@ export function generarDias(hoy: Date, cantidad = 400): DiaVentas[] {
     const fecha = aTexto(d)
     const rnd = aleatorio(Number(fecha.replaceAll('-', '')))
     const tendencia = 1 + (cantidad - i) * 0.0004 // el negocio crece despacio
-    const ventas = Math.round((1_000_000 * FACTOR_SEMANA[d.getDay()]! * tendencia * (0.88 + rnd() * 0.24)) / 100) * 100
+    const ventas = Math.round((650_000 * FACTOR_SEMANA[d.getDay()]! * tendencia * (0.88 + rnd() * 0.24)) / 100) * 100
     const ganancia = Math.round((ventas * (0.3 + rnd() * 0.04)) / 100) * 100
-    const tickets = Math.max(1, Math.round(ventas / (23_000 + rnd() * 5_000)))
+    const tickets = Math.max(1, Math.round(ventas / (16_000 + rnd() * 5_000)))
     dias.push({ fecha, ventas, ganancia, tickets })
   }
   // Hoy y ayer coinciden con las cifras que ya mostraba el Panel antes de tener filtros.

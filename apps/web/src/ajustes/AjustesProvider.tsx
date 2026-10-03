@@ -59,7 +59,15 @@ export function AjustesProvider({ children }: { children: ReactNode }) {
 
   // Antes de iniciar sesión: la "marca" pública (nombre y apariencia) para que el acceso se vea como el negocio.
   useEffect(() => {
-    if (MODO_DEMO) return
+    if (MODO_DEMO) {
+      // Demo estática (sin servidor): la marca sale de archivos que se publican junto a la pantalla.
+      const base = import.meta.env.BASE_URL
+      fetch(`${base}personalizacion/marca.json`).then((r) => r.json()).then((m: Personalizacion) => aplicarPersonalizacion({
+        ...m, logo: `${base}personalizacion/logo.png`, logoOscuro: `${base}personalizacion/logo-oscuro.png`,
+        logoIcono: `${base}personalizacion/logo-icono.png`, logoIconoOscuro: `${base}personalizacion/logo-icono-oscuro.png`,
+      })).catch(() => undefined)
+      return
+    }
     api.get<ConfigServidor & { personalizacion?: Personalizacion }>('/marca').then((m) => { aplicarPersonalizacion(m.personalizacion); setAjustes((a) => mezclar(a, desdeServidor(m))) }).catch(() => undefined)
   }, [])
 

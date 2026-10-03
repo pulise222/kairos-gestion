@@ -29,8 +29,8 @@ export function cssDePersonalizacion(p: Personalizacion): string {
   return [claro && `:root{${claro}}`, oscuro && `:root[data-theme='dark']{${oscuro}}`].filter(Boolean).join('\n')
 }
 
-/** Solo se acepta un logo que venga de la carpeta de personalización del propio servidor. */
-export const logoValido = (url: unknown): url is string => typeof url === 'string' && /^\/personalizacion\/logo(-oscuro|-icono|-icono-oscuro)?\.(svg|png|webp|jpg)(\?v=\d+)?$/.test(url)
+/** Solo se acepta un logo que venga de la carpeta de personalización del propio servidor (en la demo estática, con ruta relativa «./»). */
+export const logoValido = (url: unknown): url is string => typeof url === 'string' && /^(\.\/|\/)personalizacion\/logo(-oscuro|-icono|-icono-oscuro)?\.(svg|png|webp|jpg)(\?v=\d+)?$/.test(url)
 
 /* ───── Pequeño almacén para que <Logo> y la pantalla de acceso se enteren del logo y el lema ───── */
 type Marca = { logo?: string; logoOscuro?: string; logoIcono?: string; logoIconoOscuro?: string; lema?: string }

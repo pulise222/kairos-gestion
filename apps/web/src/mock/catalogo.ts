@@ -37,51 +37,49 @@ export interface Producto {
 }
 
 export const categorias: Categoria[] = [
-  { id: 'bebidas', nombre: 'Bebidas', color: '#2f7fb8' },
-  { id: 'aseo', nombre: 'Aseo', color: '#2e9e8f' },
-  { id: 'abarrotes', nombre: 'Abarrotes', color: '#b8892a' },
-  { id: 'lacteos', nombre: 'Lácteos', color: '#7a6bb8' },
-  { id: 'snacks', nombre: 'Snacks', color: '#c2543f' },
+  { id: 'pegantes', nombre: 'Pegantes', color: '#b8892a' },
+  { id: 'soluciones', nombre: 'Soluciones', color: '#2f7fb8' },
+  { id: 'tintes', nombre: 'Tintes y marroquinera', color: '#7c3a5a' },
+  { id: 'hilos', nombre: 'Hilos', color: '#4d9a45' },
+  { id: 'agujas', nombre: 'Agujas', color: '#2e9e8f' },
+  { id: 'sesgos', nombre: 'Sesgos y elásticos', color: '#c2543f' },
+  { id: 'materiales', nombre: 'Materiales', color: '#7a6bb8' },
 ]
 
+// Proveedores FICTICIOS (la demo es pública: no se usan los del cliente real).
 export const proveedoresIniciales: Proveedor[] = [
-  { id: 1, nombre: 'Distribuciones Andina', telefono: '300 123 4567', correo: 'pedidos@andina.co', notas: 'Pasa los martes. Pedido mínimo $150.000.', activo: true },
-  { id: 2, nombre: 'Aseo Total', telefono: '310 987 6543', correo: '', notas: 'Entrega a domicilio sin costo.', activo: true },
-  { id: 3, nombre: 'Alimentos del Valle', telefono: '315 222 3344', correo: 'ventas@alimentosvalle.co', notas: '', activo: true },
-  { id: 4, nombre: 'Lácteos La Sabana', telefono: '320 555 6677', correo: '', notas: 'Producto refrigerado: recibir antes de las 10 a. m.', activo: true },
-  { id: 5, nombre: 'Panadería Central', telefono: '301 111 2233', correo: '', notas: '', activo: true },
-  { id: 6, nombre: 'Dulces Tropical', telefono: '312 444 5566', correo: '', notas: 'Ya no trabajamos con ellos.', activo: false },
+  { id: 1, nombre: 'Químicos del Norte', telefono: '300 123 4567', correo: 'pedidos@quimicosnorte.example', notas: 'Pegantes y solventes. Pasa los martes.', activo: true },
+  { id: 2, nombre: 'Tintes y Cueros Rivera', telefono: '310 987 6543', correo: '', notas: 'Entrega a domicilio sin costo.', activo: true },
+  { id: 3, nombre: 'Hilos y Agujas Andina', telefono: '315 222 3344', correo: 'ventas@hilosandina.example', notas: '', activo: true },
+  { id: 4, nombre: 'Sesgos y Elásticos del Valle', telefono: '320 555 6677', correo: '', notas: 'Pedido mínimo de 6 rollos.', activo: true },
+  { id: 5, nombre: 'Materiales para Calzado Aguilar', telefono: '301 111 2233', correo: '', notas: '', activo: true },
+  { id: 6, nombre: 'Distribuidora Esquina', telefono: '312 444 5566', correo: '', notas: 'Ya no trabajamos con ellos.', activo: false },
 ]
 
-// Las fotos de la demo viven en public/productos/ y se llaman como el producto («Agua 600 ml» → agua-600-ml.webp).
-// BASE_URL hace que funcionen igual en la raíz y en una subcarpeta (GitHub Pages).
-const nombreArchivo = (nombre: string) => nombre.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-const foto = (nombre: string) => `${import.meta.env.BASE_URL}productos/${nombreArchivo(nombre)}.webp`
-
-// Los primeros llevan un número corto propio (101, 102…); el resto, código de barras de 13 dígitos.
+// Sin fotos: cada producto se muestra con el color de su sección (así es como lo usa el cliente real al empezar).
 const p = (id: number, codigo: string, nombre: string, categoriaId: string, proveedorId: number, precio: number, costo: number, stock: number, minimo: number): Producto => ({
-  id, codigo, nombre, categoriaId, proveedorId, precio, costo, stock, minimo, activo: true, imagen: foto(nombre),
+  id, codigo, nombre, categoriaId, proveedorId, precio, costo, stock, minimo, activo: true, imagen: null,
 })
 
 export const productosIniciales: Producto[] = [
-  p(1, '101', 'Gaseosa 1.5 L', 'bebidas', 1, 4500, 3200, 3, 12),
-  p(2, '102', 'Agua 600 ml', 'bebidas', 1, 1800, 1100, 48, 24),
-  p(3, '103', 'Jugo de naranja 1 L', 'bebidas', 1, 5200, 3800, 20, 8),
-  p(4, '104', 'Cerveza 330 ml', 'bebidas', 1, 3000, 2100, 36, 24),
-  p(5, '201', 'Detergente 1 kg', 'aseo', 2, 12500, 9000, 2, 6),
-  p(6, '202', 'Jabón de baño', 'aseo', 2, 2800, 1900, 0, 10),
-  p(7, '203', 'Papel higiénico x4', 'aseo', 2, 7800, 5600, 15, 8),
-  p(8, '7701001000008', 'Arroz 1 kg', 'abarrotes', 3, 4200, 3300, 40, 15),
-  p(9, '7701001000009', 'Aceite 1 L', 'abarrotes', 3, 11500, 9200, 14, 6),
-  p(10, '7701001000010', 'Azúcar 1 kg', 'abarrotes', 3, 4800, 3900, 22, 10),
-  p(11, '7701001000011', 'Pan tajado', 'abarrotes', 5, 5600, 4100, 9, 8),
-  p(12, '7701001000012', 'Leche 1 L', 'lacteos', 4, 4300, 3500, 30, 12),
-  p(13, '7701001000013', 'Huevos x12', 'lacteos', 4, 9500, 7600, 18, 10),
-  p(14, '7701001000014', 'Queso campesino', 'lacteos', 4, 8500, 6400, 7, 4),
-  p(15, '7701001000015', 'Galletas de sal', 'snacks', 3, 2800, 1900, 8, 10),
-  p(16, '7701001000016', 'Papas fritas', 'snacks', 3, 2500, 1700, 26, 12),
-  p(17, '7701001000017', 'Chocolatina', 'snacks', 3, 1800, 1200, 60, 20),
+  p(1, '0001', 'Pegante Fénix 1 L', 'pegantes', 1, 12000, 8500, 24, 8),
+  p(2, '0002', 'Pegante One Way 1 L', 'pegantes', 1, 17500, 12800, 18, 6),
+  p(3, '0003', 'Pegante Plus 750 ml', 'pegantes', 1, 9000, 6500, 4, 6),
+  p(4, '0004', 'Thinner 1 L', 'soluciones', 1, 7000, 4800, 30, 10),
+  p(5, '0005', 'Activador cleaner 500 ml', 'soluciones', 1, 14000, 10200, 11, 5),
+  p(6, '0006', 'Varsol 1 L', 'soluciones', 1, 6500, 4500, 0, 6),
+  p(7, '0007', 'Marroquinera negra 125 ml', 'tintes', 2, 5500, 3600, 40, 10),
+  p(8, '0008', 'Pinta cuero marrón 125 ml', 'tintes', 2, 5000, 3300, 15, 8),
+  p(9, '0009', 'Cono de hilo negro', 'hilos', 3, 9000, 6200, 60, 20),
+  p(10, '0010', 'Hilo encerado café', 'hilos', 3, 3500, 2200, 35, 15),
+  p(11, '0011', 'Agujas (paquete)', 'agujas', 3, 2800, 1700, 80, 30),
+  p(12, '0012', 'Aguja industrial #14', 'agujas', 3, 4200, 2800, 7, 15),
+  p(13, '0013', 'Sesgo (rollo)', 'sesgos', 4, 10000, 7100, 10, 4),
+  p(14, '0014', 'Elástico 2 cm (rollo)', 'sesgos', 4, 8500, 6000, 22, 8),
+  p(15, '0015', 'Plantilla de espuma (par)', 'materiales', 5, 6500, 4300, 26, 10),
+  p(16, '0016', 'Lona cruda (metro)', 'materiales', 5, 7800, 5400, 15, 6),
+  p(17, '0017', 'Contrafuerte (par)', 'materiales', 5, 4800, 3200, 2, 10),
 ]
 
-/** Regla de negocio configurable (pregunta 5 del cliente): ¿vender con stock en cero? Aquí: no. */
-export const configVenta = { permitirSinStock: false, billetes: [10000, 20000, 50000, 100000] }
+/** Regla de negocio configurable (pregunta 5 del cliente): ¿vender con stock en cero? Kairos: sí, nunca se bloquea una venta. */
+export const configVenta = { permitirSinStock: true, billetes: [10000, 20000, 50000, 100000] }

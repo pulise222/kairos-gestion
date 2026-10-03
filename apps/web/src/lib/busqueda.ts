@@ -46,7 +46,8 @@ export function buscar(productos: Producto[], consulta: string): Producto[] {
 /** Siguiente número corto libre para "Generar código": el mayor número usado + 1 (mínimo 101). */
 export function siguienteCodigo(productos: Producto[]): string {
   const numericos = productos.map((p) => p.codigo).filter((c) => /^\d{1,6}$/.test(c)).map(Number)
-  return String(Math.max(100, ...numericos) + 1)
+  // Igual que el sistema real de Kairos: números cortos de 4 dígitos (0001, 0002…).
+  return String(Math.max(0, ...numericos) + 1).padStart(4, '0')
 }
 
 /** Margen sobre el precio de venta: lo que queda de cada peso vendido. */

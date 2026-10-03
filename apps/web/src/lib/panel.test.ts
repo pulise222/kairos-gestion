@@ -20,8 +20,8 @@ describe('totales por período', () => {
   })
 
   it('hoy y ayer coinciden con las cifras históricas del Panel', () => {
-    expect(totalizar(dias, rangoDe('hoy', HOY))).toMatchObject({ ventas: 1_284_500, ganancia: 412_300, tickets: 48 })
-    expect(totalizar(dias, rangoDe('ayer', HOY))).toMatchObject({ ventas: 1_148_000, ganancia: 381_000, tickets: 43 })
+    expect(totalizar(dias, rangoDe('hoy', HOY))).toMatchObject({ ventas: 684_500, ganancia: 221_300, tickets: 41 })
+    expect(totalizar(dias, rangoDe('ayer', HOY))).toMatchObject({ ventas: 612_000, ganancia: 198_000, tickets: 38 })
   })
 
   it('INVARIANTE: 30 días = suma de los 30 días uno por uno', () => {

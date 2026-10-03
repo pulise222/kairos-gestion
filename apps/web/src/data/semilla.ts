@@ -8,10 +8,10 @@ const DIA = 86_400_000
 export const vendidoAntes = (id: number) => (id <= 8 ? ((id * 3) % 7) + 2 : 0)
 
 export const comprasIniciales = (): Compra[] => [
-  { id: 1, proveedorId: 1, fecha: new Date(Date.now() - DIA * 9), total: 24 * 1100, notas: 'Pedido semanal', items: [{ productoId: 2, cantidad: 24, costoUnitario: 1100 }] },
-  { id: 2, proveedorId: 3, fecha: new Date(Date.now() - DIA * 6), total: 30 * 3300 + 12 * 3900, items: [{ productoId: 8, cantidad: 30, costoUnitario: 3300 }, { productoId: 10, cantidad: 12, costoUnitario: 3900 }] },
-  { id: 3, proveedorId: 2, fecha: new Date(Date.now() - DIA * 12), total: 10 * 5600, items: [{ productoId: 7, cantidad: 10, costoUnitario: 5600 }] },
-  { id: 4, proveedorId: 4, fecha: new Date(Date.now() - DIA * 4), total: 24 * 3500 + 12 * 7600, notas: 'Entrega de la mañana', items: [{ productoId: 12, cantidad: 24, costoUnitario: 3500 }, { productoId: 13, cantidad: 12, costoUnitario: 7600 }] },
+  { id: 1, proveedorId: 1, fecha: new Date(Date.now() - DIA * 9), total: 24 * 8500, notas: 'Pedido semanal', items: [{ productoId: 1, cantidad: 24, costoUnitario: 8500 }] },
+  { id: 2, proveedorId: 3, fecha: new Date(Date.now() - DIA * 6), total: 40 * 6200 + 50 * 1700, items: [{ productoId: 9, cantidad: 40, costoUnitario: 6200 }, { productoId: 11, cantidad: 50, costoUnitario: 1700 }] },
+  { id: 3, proveedorId: 1, fecha: new Date(Date.now() - DIA * 12), total: 20 * 4800, items: [{ productoId: 4, cantidad: 20, costoUnitario: 4800 }] },
+  { id: 4, proveedorId: 4, fecha: new Date(Date.now() - DIA * 4), total: 10 * 7100 + 12 * 6000, notas: 'Entrega de la mañana', items: [{ productoId: 13, cantidad: 10, costoUnitario: 7100 }, { productoId: 14, cantidad: 12, costoUnitario: 6000 }] },
 ]
 
 export const movimientosIniciales = (): Movimiento[] => {
